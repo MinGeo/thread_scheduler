@@ -1,0 +1,25 @@
+SWAP -1 -> 0
+SWAP 0 -> 1
+SWAP 1 -> 2
+SWAP 2 -> 3
+SWAP 3 -> 4
+SWAP 4 -> -1
+JOIN 0
+JOIN 1
+JOIN 2
+JOIN 3
+JOIN 4
+SWAP -1 -> 5
+SWAP 5 -> 6
+SWAP 6 -> 7
+SWAP 7 -> -1
+JOIN 7
+SWAP -1 -> 8
+SWAP 8 -> 9
+SWAP 9 -> 10
+SWAP 10 -> -1
+JOIN 10
+JOIN 9
+JOIN 8
+JOIN 6
+JOIN 5

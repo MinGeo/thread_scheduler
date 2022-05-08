@@ -35,7 +35,6 @@ SWAP 6 -> 5
 SWAP 5 -> 5
 SWAP 5 -> 5
 SWAP 5 -> 7
-SWAP 7 -> 7
 SWAP 7 -> -1
 JOIN 7
 SWAP -1 -> 8

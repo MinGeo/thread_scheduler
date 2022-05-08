@@ -8,6 +8,12 @@ SWAP -1 -> 0
 SWAP 0 -> 1
 SWAP 1 -> 2
 SWAP 2 -> 3
+SWAP 3 -> 4
+SWAP 4 -> -1
+SWAP -1 -> 0
+SWAP 0 -> 1
+SWAP 1 -> 2
+SWAP 2 -> 3
 SWAP 3 -> -1
 SWAP -1 -> 0
 SWAP 0 -> 2
@@ -31,6 +37,12 @@ SWAP 5 -> 6
 SWAP 6 -> 7
 SWAP 7 -> -1
 JOIN 7
+SWAP -1 -> 5
+SWAP 5 -> 6
+SWAP 6 -> 8
+SWAP 8 -> 9
+SWAP 9 -> 10
+SWAP 10 -> -1
 SWAP -1 -> 5
 SWAP 5 -> 6
 SWAP 6 -> 8

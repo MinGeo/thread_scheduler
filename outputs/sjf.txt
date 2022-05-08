@@ -27,7 +27,6 @@ JOIN 2
 JOIN 3
 JOIN 4
 SWAP -1 -> 7
-SWAP 7 -> 7
 SWAP 7 -> 5
 SWAP 5 -> 5
 SWAP 5 -> 5

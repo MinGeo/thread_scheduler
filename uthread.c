@@ -217,7 +217,6 @@ void __free_all_tcbs() {
             list_del(&temp->list);
             free(temp->context);
             free(temp);
-            temp = NULL;
         }
     }
 

@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
                 for (int i = 0; i < 3; i++) 
                     params[i] = atoi(strtok(NULL, " "));
 
-                if (policy == FIFO) 
+                if (policy == FIFO || policy == SJF) 
                     uthread_create((void *)__non_preemptive_worker, (void *)params);
                 else 
                     uthread_create((void *)__preemptive_worker, (void *)params);

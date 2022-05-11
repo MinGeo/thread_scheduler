@@ -217,6 +217,8 @@ void __free_all_tcbs() {
             list_del(&temp->list);
             free(temp->context);
             free(temp);
+            n_tcbs--;
+            temp = list_first_entry(&tcbs, struct tcb, list);
         }
     }
 

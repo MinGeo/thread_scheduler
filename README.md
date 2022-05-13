@@ -18,7 +18,7 @@ This programming assignment is to (1) implement your own user-level thread libra
 #### User-level thread library and Scheduling
 - Your first task is to implement your own user-level thread library with `ucontext.h`. This library provides some functions and structure that allow user-level context switching.
 
-- With the user-level threads spawned from the library, your second job is to make your own scheduler to schedule them. Use `signal.h` to implement the scheduler.
+- With the user-level threads spawned from the library, your second job is to make your own scheduler to schedule them.
 
 - You are required to implement four scheduling policy (First-In-First-Out, Rount-Robin, Priority, and Shortest-Job-First). Please check the lecture notes to remind how they work.
 
@@ -51,6 +51,8 @@ JOIN 1
 - For your coding practice, the compiler is set to halt on some (important) warnings. Write your code to fully comply the C99 standard.
 
 - Please check carefully the Linux Manual Page. There is a lot of information for the project.
+
+- When you create user-level thread, you can implement easily preemptive and non-preemptive scheduling. Use some function in `signal.h`.
 
 - You have to print your output below format. Please do not print in situation that SWAP main -> main. 
 ```

@@ -20,7 +20,7 @@
  *
  * DESCRIPTION
  *    This function is job for preemptive scheduling thread.
- *    If you want to check implementation of user_level_thread, 
+ *    If you want to check implementation of user_level_thread,
  *    add fprintf statement.
  *
  ******************************************************************/
@@ -45,17 +45,17 @@ void *__non_preemptive_worker(void* args) {
  *
  * DO NOT MODIFY UNDER THIS LINE!!!
  *
- ******************************************************************/ 
+ ******************************************************************/
 
 int main(int argc, char* argv[]) {
-    
+
     int params[3];
     char buf[15], *ptr = NULL;
     int target, res = -2;
     enum uthread_sched_policy policy;
     sigset_t mask;
-   
-    /* Set scheduling policy. */ 
+
+    /* Set scheduling policy. */
     fgets(buf, sizeof(buf), stdin);
     ptr = strtok(buf, "\n");
     PARSE_SCHED(buf, policy);
@@ -72,12 +72,12 @@ int main(int argc, char* argv[]) {
         switch(res) {
             case 0: // CREATE
                 sigprocmask(SIG_BLOCK, &mask, NULL);
-                for (int i = 0; i < 3; i++) 
+                for (int i = 0; i < 3; i++)
                     params[i] = atoi(strtok(NULL, " "));
 
-                if (policy == FIFO || policy == SJF) 
+                if (policy == FIFO || policy == SJF)
                     uthread_create((void *)__non_preemptive_worker, (void *)params);
-                else 
+                else
                     uthread_create((void *)__preemptive_worker, (void *)params);
                 break;
             case 1: // JOIN
@@ -89,6 +89,6 @@ int main(int argc, char* argv[]) {
     }
 
     __free_all_tcbs();
-    
+
     return EXIT_SUCCESS;
 }

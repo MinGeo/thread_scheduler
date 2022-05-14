@@ -26,7 +26,7 @@ enum uthread_state {
 void uthread_init(enum uthread_sched_policy policy);
 
 int uthread_create(void* stub(void*), void* args);
-	
+
 void uthread_join(int tid);
 
 struct tcb *fifo_scheduling(struct tcb *next);

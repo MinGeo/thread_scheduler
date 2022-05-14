@@ -31,7 +31,7 @@ struct tcb {
  * LIST_HEAD(tcbs);
  *
  * DESCRIPTION
- *    Initialize list head of thread control block. 
+ *    Initialize list head of thread control block.
  *
  **************************************************************************************/
 LIST_HEAD(tcbs);
@@ -44,7 +44,7 @@ struct ucontext_t *t_context;
  * next_tcb()
  *
  * DESCRIPTION
- *  
+ *
  *    Select a tcb with current scheduling policy
  *
  **************************************************************************************/
@@ -119,9 +119,11 @@ struct tcb *sjf_scheduling(struct tcb *next) {
  *
  **************************************************************************************/
 void uthread_init(enum uthread_sched_policy policy) {
-    
     /* TODO: You have to implement this function. */
 
+    /* DO NOT MODIFY THESE TWO LINES */
+    __create_run_timer();
+    __initialize_exit_context();
 }
 
 
@@ -182,7 +184,7 @@ void __initialize_exit_context() {
 }
 
 /***************************************************************************************
- *   
+ *
  * DO NOT MODIFY UNDER THIS LINE!!!
  *
  **************************************************************************************/
@@ -200,12 +202,12 @@ void __create_run_timer() {
     time_quantum.it_interval.tv_sec = 0;
     time_quantum.it_interval.tv_usec = SCHEDULER_FREQ;
     time_quantum.it_value = time_quantum.it_interval;
-    
+
     ticker.sa_handler = __scheduler;
     sigemptyset(&ticker.sa_mask);
     sigaction(SIGALRM, &ticker, NULL);
     ticker.sa_flags = 0;
-    
+
     setitimer(ITIMER_REAL, &time_quantum, (struct itimerval*) NULL);
 }
 
@@ -221,7 +223,6 @@ void __free_all_tcbs() {
             temp = list_first_entry(&tcbs, struct tcb, list);
         }
     }
-
     temp = NULL;
     free(t_context);
 }

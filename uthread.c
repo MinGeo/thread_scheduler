@@ -138,7 +138,12 @@ void uthread_init(enum uthread_sched_policy policy) {
 int uthread_create(void* stub(void *), void* args) {
 
     /* TODO: You have to implement this function. */
-
+    struct tcb *thread;
+    thread = malloc(sizeof(struct tcb));
+    thread->tid = ((int *)args)[0];
+    thread->lifetime = ((int *)args)[1];
+    thread->priority = ((int *)args)[2];
+    return thread->tid;
 }
 
 /***************************************************************************************
@@ -152,6 +157,17 @@ int uthread_create(void* stub(void *), void* args) {
 void uthread_join(int tid) {
 
     /* TODO: You have to implement this function. */
+    struct tcb *thread;
+    thread = malloc(sizeof(struct tcb));
+    list_for_each_entry(thread, &tcbs, list)
+    {
+        if(thread->state == TERMINATED)
+        {
+            list_add_tail(&thread->list, &tcbs);
+            fprintf(stderr, "JOIN %d\n", thread->tid);
+        }
+    }
+
 
 }
 
@@ -166,6 +182,14 @@ void uthread_join(int tid) {
 void __exit() {
 
     /* TODO: You have to implement this function. */
+    struct tcb *thread;
+    thread = malloc(sizeof(struct tcb));
+    if(thread->state == TERMINATED)
+    {
+        list_del(&thread->list);
+        free(thread);
+    }
+
 
 }
 

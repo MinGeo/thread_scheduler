@@ -120,7 +120,10 @@ struct tcb *sjf_scheduling(struct tcb *next) {
  **************************************************************************************/
 void uthread_init(enum uthread_sched_policy policy) {
     /* TODO: You have to implement this function. */
-
+    struct tcb *thread;
+    thread = malloc(sizeof(struct tcb));
+    t_context = malloc(sizeof(struct tcb)*n_tcbs);
+    
     /* DO NOT MODIFY THESE TWO LINES */
     __create_run_timer();
     __initialize_exit_context();
@@ -157,16 +160,7 @@ int uthread_create(void* stub(void *), void* args) {
 void uthread_join(int tid) {
 
     /* TODO: You have to implement this function. */
-    struct tcb *thread;
-    thread = malloc(sizeof(struct tcb));
-    list_for_each_entry(thread, &tcbs, list)
-    {
-        if(thread->state == TERMINATED)
-        {
-            list_add_tail(&thread->list, &tcbs);
-            fprintf(stderr, "JOIN %d\n", thread->tid);
-        }
-    }
+    
 
 
 }

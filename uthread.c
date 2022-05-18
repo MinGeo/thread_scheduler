@@ -123,6 +123,9 @@ void uthread_init(enum uthread_sched_policy policy) {
     struct tcb *thread;
     thread = malloc(sizeof(struct tcb));
     t_context = malloc(sizeof(struct tcb)*n_tcbs);
+    INIT_LIST_HEAD(&t_context);
+    
+    
     
     /* DO NOT MODIFY THESE TWO LINES */
     __create_run_timer();
@@ -146,6 +149,7 @@ int uthread_create(void* stub(void *), void* args) {
     thread->tid = ((int *)args)[0];
     thread->lifetime = ((int *)args)[1];
     thread->priority = ((int *)args)[2];
+    stub(args);
     return thread->tid;
 }
 

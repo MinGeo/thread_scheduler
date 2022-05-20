@@ -76,16 +76,11 @@ void next_tcb() {
         struct tcb *next;
 
 		case FIFO:
-
-			if(next != NULL){
-                fprintf(stderr, "SWAP %d -> %d\n", next->tid, fifo_scheduling(next)->tid);
-				setcontext(next->context);
-				//setcontext(&Main, &T2);
-
-				// README.md파일에 보면 아래와 같이 출력 로그 남기라고 되어 있음
-				// FIFO등의 스케쥴 관리 방법에 따른 관리가 가능하도록 구조체 변경할 필요가 있어 보임
-				
-			}
+            fprintf(stderr, "SWAP %d -> %d\n", next->tid, fifo_scheduling(next)->tid);
+			setcontext(next->context);
+			//setcontext(&Main, &T2);
+			// README.md파일에 보면 아래와 같이 출력 로그 남기라고 되어 있음
+			// FIFO등의 스케쥴 관리 방법에 따른 관리가 가능하도록 구조체 변경할 필요가 있어 보임
 			break;
 		case RR:
 			//a = rr_scheduling(b);
@@ -393,6 +388,8 @@ void __initialize_exit_context() {
     /* TODO: You have to implement this function. */
     printf("This is initialize exit context");
     struct tcb *thread;
+    thread = malloc(sizeof(struct tcb));
+    thread->context = malloc(20000);
 	getcontext(thread->context);
 	thread->context->uc_link = t_context;	
 	thread->context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);

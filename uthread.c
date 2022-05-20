@@ -48,7 +48,7 @@ LIST_HEAD(tcbs);
 int n_tcbs = 0;
 struct ucontext_t *t_context;
 sigset_t mask;
-
+struct tcb *fifo_scheduling(struct tcb *next);
 /***************************************************************************************
  * next_tcb()
  *
@@ -240,6 +240,7 @@ void uthread_init(enum uthread_sched_policy policy) {
 	// 물론 메인스레드를 리스트에 넣지 않을수도 있음??? 좀더 분석해야 함
 	struct tcb *thread;
     thread = malloc(sizeof(struct tcb));
+    thread->context = malloc(20000);
     getcontext(thread->context);
     thread->tid = MAIN_THREAD_TID;
     thread->lifetime = MAIN_THREAD_LIFETIME;

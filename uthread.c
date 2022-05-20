@@ -72,13 +72,12 @@ void next_tcb() {
 
 	switch (sched_policy)
 	{
-        struct tcb *prev;
         struct tcb *next;
 
 		case FIFO:
-			next = fifo_scheduling(prev);
-			if (next != prev) {
-				swapcontext(prev->context, next->context);
+			fifo_scheduling(next);
+			if (next != NULL) {
+				setcontext(next->context);
 				//setcontext(&Main, &T2);
 
 				// README.md파일에 보면 아래와 같이 출력 로그 남기라고 되어 있음
@@ -392,8 +391,8 @@ void __initialize_exit_context() {
     /* TODO: You have to implement this function. */
     printf("This is initialize exit context");
     struct tcb *thread;
-	//getcontext(thread->context);
-	//thread->context->uc_link = NULL;	
+	getcontext(thread->context);
+	thread->context->uc_link = NULL;	
 	thread->context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
 	thread->context->uc_stack.ss_size = MAX_STACK_SIZE;
 	thread->context->uc_stack.ss_flags = 0;

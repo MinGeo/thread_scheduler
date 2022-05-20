@@ -72,13 +72,13 @@ void next_tcb() {
 
 	switch (sched_policy)
 	{
-        struct tcb *next;
         struct tcb *prev;
+        struct tcb *next;
 
 		case FIFO:
 			next = fifo_scheduling(prev);
 			if (next != prev) {
-				swapcontext(prev, next);
+				swapcontext(&prev, &next);
 				//setcontext(&Main, &T2);
 
 				// README.md파일에 보면 아래와 같이 출력 로그 남기라고 되어 있음
@@ -119,7 +119,7 @@ struct tcb *fifo_scheduling(struct tcb *next) {
         if (temp != NULL && temp->tid != -1) {
             if(temp->state == READY)
             {
-                return temp;
+                return &temp;
             }
         
         }
@@ -282,7 +282,7 @@ int uthread_create(void* stub(void *), void* args) {
     thread->tid = ((int *)args)[0];
     thread->lifetime = ((int *)args)[1];
     thread->priority = ((int *)args)[2];
-    list_add_tail(thread, &tcbs);
+    list_add_tail(&thread->list, &tcbs);
 	// bgman -----------------------------
     //getcontext(thread->context);
 	//thread->state = READY;
@@ -362,7 +362,7 @@ void uthread_join(int tid) {
 
 void __exit() {
     /* TODO: You have to implement this function. */
-    print("This is exit");
+    printf("This is exit");
     // 스레드가 종료되었을때 실행되는 스레드
 	struct tcb *temp;
     list_for_each_entry(temp, &tcbs, list) {
@@ -391,7 +391,7 @@ void __initialize_exit_context() {
     /* TODO: You have to implement this function. */
     printf("This is initialize exit context");
     struct tcb *thread;
-	getcontext(thread->context);
+	//getcontext(thread->context);
 	thread->context->uc_link = NULL;	
 	thread->context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
 	thread->context->uc_stack.ss_size = MAX_STACK_SIZE;

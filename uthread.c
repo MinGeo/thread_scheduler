@@ -393,7 +393,7 @@ void __initialize_exit_context() {
     printf("This is initialize exit context");
     struct tcb *thread;
 	//getcontext(thread->context);
-	thread->context->uc_link = NULL;	
+	//thread->context->uc_link = NULL;	
 	thread->context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
 	thread->context->uc_stack.ss_size = MAX_STACK_SIZE;
 	thread->context->uc_stack.ss_flags = 0;

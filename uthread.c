@@ -72,9 +72,11 @@ void next_tcb() {
 
 	switch (sched_policy)
 	{
+        struct tcb *prev;
         struct tcb *next;
 
 		case FIFO:
+            prev = next;
 			fifo_scheduling(next);
 			if (next != NULL) {
 				setcontext(next->context);

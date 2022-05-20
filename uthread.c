@@ -77,7 +77,7 @@ void next_tcb() {
 
 		case FIFO:
 
-			if (next != NULL) {
+			if(next != NULL){
                 fprintf(stderr, "SWAP %d -> %d\n", next->tid, fifo_scheduling(next)->tid);
 				setcontext(next->context);
 				//setcontext(&Main, &T2);

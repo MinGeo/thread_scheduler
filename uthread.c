@@ -78,7 +78,7 @@ void next_tcb() {
 		case FIFO:
 			next = fifo_scheduling(prev);
 			if (next != prev) {
-				swapcontext(&prev, &next);
+				swapcontext(&prev->context, &next->context);
 				//setcontext(&Main, &T2);
 
 				// README.md파일에 보면 아래와 같이 출력 로그 남기라고 되어 있음

@@ -76,7 +76,7 @@ void next_tcb() {
         struct tcb *next;
 
 		case FIFO:
-            prev = next;
+            prev->tid = next->tid;
 			fifo_scheduling(next);
 			if (next != NULL) {
 				setcontext(next->context);
@@ -114,13 +114,13 @@ void next_tcb() {
 struct tcb *fifo_scheduling(struct tcb *next) {
     printf("This is fifo");
     /* TODO: You have to implement this function. */
-    struct tcb *temp;
-    list_for_each_entry(temp, &tcbs, list)
+
+    list_for_each_entry(next, &tcbs, list)
     {
-        if (temp != NULL && temp->tid != -1) {
-            if(temp->state == READY)
+        if (next != NULL && next->tid != -1) {
+            if(next->state == READY)
             {
-                return temp;
+                return next;
             }
         
         }

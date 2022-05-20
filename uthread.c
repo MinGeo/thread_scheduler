@@ -72,19 +72,19 @@ void next_tcb() {
 
 	switch (sched_policy)
 	{
-        struct tcb *prev;
+
         struct tcb *next;
 
 		case FIFO:
-            prev->tid = next->tid;
-			fifo_scheduling(next);
+
 			if (next != NULL) {
+                fprintf(stderr, "SWAP %d -> %d\n", next->tid, fifo_scheduling(next)->tid);
 				setcontext(next->context);
 				//setcontext(&Main, &T2);
 
 				// README.md파일에 보면 아래와 같이 출력 로그 남기라고 되어 있음
 				// FIFO등의 스케쥴 관리 방법에 따른 관리가 가능하도록 구조체 변경할 필요가 있어 보임
-				fprintf(stderr, "SWAP %d -> %d\n", prev->tid, next->tid);
+				
 			}
 			break;
 		case RR:
@@ -394,7 +394,7 @@ void __initialize_exit_context() {
     printf("This is initialize exit context");
     struct tcb *thread;
 	getcontext(thread->context);
-	thread->context->uc_link = NULL;	
+	thread->context->uc_link = t_context;	
 	thread->context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
 	thread->context->uc_stack.ss_size = MAX_STACK_SIZE;
 	thread->context->uc_stack.ss_flags = 0;

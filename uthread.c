@@ -119,7 +119,7 @@ struct tcb *fifo_scheduling(struct tcb *next) {
         if (temp != NULL && temp->tid != -1) {
             if(temp->state == READY)
             {
-                return &temp;
+                return temp;
             }
         
         }

@@ -74,9 +74,10 @@ void next_tcb() {
 	{
 
         struct tcb *next;
-
+        struct tcb *temp;
+        temp = fifo_scheduling(next);
 		case FIFO:
-            fprintf(stderr, "SWAP %d -> %d\n", next->tid, fifo_scheduling(next)->tid);
+            fprintf(stderr, "SWAP %d -> %d\n", next->tid, temp->tid);
 			setcontext(next->context);
 			//setcontext(&Main, &T2);
 			// README.md파일에 보면 아래와 같이 출력 로그 남기라고 되어 있음

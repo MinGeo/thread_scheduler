@@ -230,7 +230,8 @@ void uthread_init(enum uthread_sched_policy policy) {
     thread->context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
     thread->context->uc_stack.ss_size = MAX_STACK_SIZE;
     thread->context->uc_stack.ss_flags = 0;
-    swapcontext(thread->context, t_context);
+    //swapcontext(thread->context, t_context);
+    setcontext(t_context);
     /* DO NOT MODIFY THESE TWO LINES */
     __create_run_timer();
     __initialize_exit_context();
@@ -366,6 +367,29 @@ void __exit() {
 void __initialize_exit_context() {
     /* TODO: You have to implement this function. */
     printf("This is initialize exit context");
+    struct tcb *thread;
+    thread = malloc(sizeof(struct tcb));
+    thread->context = malloc(20000);
+    getcontext(thread->context);
+    //getcontext(t_context);
+    thread->tid = MAIN_THREAD_TID;
+    thread->lifetime = MAIN_THREAD_LIFETIME;
+    thread->priority = MAIN_THREAD_PRIORITY;
+    thread->state = RUNNING;
+        // 리스트에 추가하는 방법 맞는지 모름, 확인 필요함
+         // 스레드 갯수 카운트 추가
+    // ???????? 아닌것 같음
+    
+    thread->context->uc_link = 0;   
+    thread->context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
+    thread->context->uc_stack.ss_size = MAX_STACK_SIZE;
+    thread->context->uc_stack.ss_flags = 0;
+    swapcontext(thread->context, t_context);
+    __exit();
+    
+
+
+
     
 }
  

@@ -230,7 +230,6 @@ void uthread_init(enum uthread_sched_policy policy) {
     thread->context->uc_stack.ss_size = MAX_STACK_SIZE;
     thread->context->uc_stack.ss_flags = 0;
     getcontext(t_context);
-    swapcontext(thread->context, t_context);
     /* DO NOT MODIFY THESE TWO LINES */
     __create_run_timer();
     __initialize_exit_context();

@@ -377,7 +377,7 @@ void __initialize_exit_context() {
     thread->context->uc_stack.ss_size = MAX_STACK_SIZE;
     thread->context->uc_stack.ss_flags = 0;
     
-    makecontext(thread->context, (void*)exit, 0);
+    makecontext(thread->context, (void*)&exit, 0);
     
 
 

@@ -46,7 +46,7 @@ struct tcb {
 
 LIST_HEAD(tcbs);
 int n_tcbs = 0;
-struct ucontext_t *t_context;
+ucontext_t *t_context;
 sigset_t mask;
 struct tcb *fifo_scheduling(struct tcb *next);
 /***************************************************************************************
@@ -74,8 +74,8 @@ void next_tcb() {
     {
         case FIFO:
             //fprintf(stderr, "SWAP %d -> %d\n", next->tid, temp->tid);
-           // setcontext(next->context);
-            //setcontext(&Main, &T2);
+            //setcontext(next->context);
+            
             // README.md파일에 보면 아래와 같이 출력 로그 남기라고 되어 있음
             // FIFO등의 스케쥴 관리 방법에 따른 관리가 가능하도록 구조체 변경할 필요가 있어 보임
             break;
@@ -126,27 +126,16 @@ struct tcb *fifo_scheduling(struct tcb *next) {
 /***************************************************************************************
 
  * struct tcb *rr_scheduling(struct tcb *next)
-
  *
-
  * DESCRIPTION
-
  *
-
  *    This function returns a tcb pointer using round robin policy
-
  *
 
  **************************************************************************************/
 
 struct tcb *rr_scheduling(struct tcb *next) {
-
- 
-
     /* TODO: You have to implement this function. */
-
- 
-
     // 스케쥴링 : RR 방식용
 
 }
@@ -154,19 +143,12 @@ struct tcb *rr_scheduling(struct tcb *next) {
  
 
 /***************************************************************************************
-
  * struct tcb *prio_scheduling(struct tcb *next)
-
  *
-
  * DESCRIPTION
-
  *
-
  *    This function returns a tcb pointer using priority policy
-
  *
-
  **************************************************************************************/
 
 struct tcb *prio_scheduling(struct tcb *next) {
@@ -240,13 +222,15 @@ void uthread_init(enum uthread_sched_policy policy) {
     thread->priority = MAIN_THREAD_PRIORITY;
     thread->state = RUNNING;
         // 리스트에 추가하는 방법 맞는지 모름, 확인 필요함
-    n_tcbs++;         // 스레드 갯수 카운트 추가
+         // 스레드 갯수 카운트 추가
     // ???????? 아닌것 같음
+    
     thread->context->uc_link = 0;   
     thread->context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
     thread->context->uc_stack.ss_size = MAX_STACK_SIZE;
     thread->context->uc_stack.ss_flags = 0;
-    makecontext(thread->context, setcontext(&t_context), 0);
+    getcontext(t_context);
+    swapcontext(thread->context, t_context);
     /* DO NOT MODIFY THESE TWO LINES */
     __create_run_timer();
     __initialize_exit_context();
@@ -382,16 +366,13 @@ void __exit() {
 void __initialize_exit_context() {
     /* TODO: You have to implement this function. */
     printf("This is initialize exit context");
-    /*struct tcb *thread;
-    thread = malloc(sizeof(struct tcb));
-    thread->context = malloc(20000);
-    getcontext(thread->context);
+    struct tcb *thread;
     thread->context->uc_link = t_context;   
     thread->context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
     thread->context->uc_stack.ss_size = MAX_STACK_SIZE;
     thread->context->uc_stack.ss_flags = 0;
-    makecontext(t_context, (void*)__exit, 0);
-    */
+    makecontext(thread->context, (void*)__exit, 0);
+    
 }
  
 /***************************************************************************************

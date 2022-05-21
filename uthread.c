@@ -217,7 +217,7 @@ void uthread_init(enum uthread_sched_policy policy) {
     thread = malloc(sizeof(struct tcb));
     thread->context = malloc(20000);
     getcontext(thread->context);
-    getcontext(t_context);
+    //getcontext(t_context);
     thread->tid = MAIN_THREAD_TID;
     thread->lifetime = MAIN_THREAD_LIFETIME;
     thread->priority = MAIN_THREAD_PRIORITY;

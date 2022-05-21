@@ -217,6 +217,7 @@ void uthread_init(enum uthread_sched_policy policy) {
     thread = malloc(sizeof(struct tcb));
     thread->context = malloc(20000);
     getcontext(thread->context);
+    getcontext(t_context);
     thread->tid = MAIN_THREAD_TID;
     thread->lifetime = MAIN_THREAD_LIFETIME;
     thread->priority = MAIN_THREAD_PRIORITY;
@@ -229,7 +230,6 @@ void uthread_init(enum uthread_sched_policy policy) {
     thread->context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
     thread->context->uc_stack.ss_size = MAX_STACK_SIZE;
     thread->context->uc_stack.ss_flags = 0;
-    getcontext(t_context);
     /* DO NOT MODIFY THESE TWO LINES */
     __create_run_timer();
     __initialize_exit_context();

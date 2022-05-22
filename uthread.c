@@ -266,11 +266,12 @@ void uthread_init(enum uthread_sched_policy policy) {
 int uthread_create(void* stub(void *), void* args) {
     /* TODO: You have to implement this function. */
     printf("CHK : uthread_create\n");
-    static ucontext_t context; 
-    if (getcontext(&context)) {
-        printf("CHK : context 222 error\n");
-        return -1;
-    }
+    ucontext_t context; 
+    getcontext(&context);
+    context.uc_link = 0;   
+    context.uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
+    context.uc_stack.ss_size = MAX_STACK_SIZE;
+    context.uc_stack.ss_flags = 0;
     makecontext(&context, (void *)stub, 0);
     printf("CHK : makecontext(&context, (void *)stub, 0)\n");
  

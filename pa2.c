@@ -66,8 +66,7 @@ int main(int argc, char* argv[]) {
     /* Init user level thread library. */
     uthread_init(policy);
     sigprocmask(SIG_UNBLOCK, &mask, NULL);
-
-    // uthread_create((void *)__non_preemptive_worker, (void *)params);
+    uthread_create((void *)__non_preemptive_worker, (void *)params);
 
     /* Read input file and run the correct function. */
     /*

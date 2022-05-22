@@ -44,14 +44,11 @@ struct tcb {
  *
  **************************************************************************************/
 
-ucontext_t mainContext;
 ucontext_t exitContext;
 
 LIST_HEAD(tcbs);
 int n_tcbs = 0;
 struct ucontext_t *t_context;
-sigset_t mask;
-struct tcb *fifo_scheduling(struct tcb *next);
 
 /***************************************************************************************
  * next_tcb()
@@ -64,19 +61,14 @@ struct tcb *fifo_scheduling(struct tcb *next);
  **************************************************************************************/
 
 void next_tcb() {
-    printf("nexttcb");
     /* TODO: You have to implement this function. */
-
-    // 스케쥴 관리 방법에 따라 다음 TCB 액션 있는듯, 함수 리턴이 없음
-    // sched_policy 지정된 방법에 따라 스케쥴 순서에 맞는 tcb 값 확인하여
-    // swapcontext로 실행을 넘겨야 할 것으로 보임
-    // SWAP 할때 출력로그 남겨야 함
-    // SWAP -1 -> 0
-    // SWAP 0 -> 1
-
+    printf("nexttcb\n");
     switch (sched_policy)
     {
         case FIFO:
+            fprintf(stderr, "SWAP %d -> %d\n", ((struct tcb *)tcbs.prev)->tid, ((struct tcb *)tcbs.next)->tid);
+            swapcontext(((struct tcb *)tcbs.prev)->context, ((struct tcb *)tcbs.next)->context);
+            printf("CHK : swapcontext\n");
             //fprintf(stderr, "SWAP %d -> %d\n", next->tid, temp->tid);
             //setcontext(next->context);
             
@@ -205,19 +197,25 @@ struct tcb *sjf_scheduling(struct tcb *next) {
 void uthread_init(enum uthread_sched_policy policy) {
     /* TODO: You have to implement this function. */
     sched_policy = policy;
-    if (getcontext(&mainContext)) {
+    struct tcb *thread;
+    thread = malloc(sizeof(struct tcb));
+    thread->tid = MAIN_THREAD_TID;
+    thread->lifetime = MAIN_THREAD_LIFETIME;
+    thread->priority = MAIN_THREAD_PRIORITY;
+    thread->state = RUNNING;
+    thread->context = malloc(sizeof(ucontext_t));
+    list_add_tail(&thread->list, &tcbs);
+    n_tcbs++;
+    if (getcontext(thread->context)) {
         printf("CHK : main getcontext error\n");
         return;
     }
+    t_context = thread->context;
 
     /* DO NOT MODIFY THESE TWO LINES */
     __create_run_timer();
     __initialize_exit_context();
 }
-
- 
-
- 
 
 /***************************************************************************************
 
@@ -235,26 +233,27 @@ void uthread_init(enum uthread_sched_policy policy) {
 
 int uthread_create(void* stub(void *), void* args) {
     /* TODO: You have to implement this function. */
-    struct tcb *thread;
-    thread = malloc(sizeof(struct tcb));
-    thread->tid = ((int *)args)[0];
-    thread->lifetime = ((int *)args)[1];
-    thread->priority = ((int *)args)[2];
-    thread->state = READY;
-    thread->context = malloc(sizeof(ucontext_t));
-    list_add_tail(&thread->list, &tcbs);
+    struct tcb *temp;
+    temp = malloc(sizeof(struct tcb));
+    temp->tid = ((int *)args)[0];
+    temp->lifetime = ((int *)args)[1];
+    temp->priority = ((int *)args)[2];
+    temp->state = READY;
+    temp->context = malloc(sizeof(ucontext_t));
+    list_add_tail(&temp->list, &tcbs);
     n_tcbs++;
     
-    getcontext(thread->context);
-    thread->context->uc_link = &exitContext;   
-    thread->context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
-    thread->context->uc_stack.ss_size = MAX_STACK_SIZE;
-    thread->context->uc_stack.ss_flags = 0;
-    makecontext(thread->context, (void *)stub, 0);
+    getcontext(temp->context);
+    temp->context->uc_link = &exitContext;   
+    temp->context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
+    temp->context->uc_stack.ss_size = MAX_STACK_SIZE;
+    temp->context->uc_stack.ss_flags = 0;
+    makecontext(temp->context, (void *)stub, 0);
     printf("makecontext\n");
 
-    swapcontext(&mainContext, thread->context);
-    printf("CHK : swapcontext\n");
+    // fprintf(stderr, "SWAP %d -> %d\n", -1, temp->tid);
+    // swapcontext(t_context, temp->context);
+    // printf("CHK : swapcontext\n");
 
     // if (setcontext(thread->context)) {
     //     printf("CHK : setcontext error\n");
@@ -262,7 +261,7 @@ int uthread_create(void* stub(void *), void* args) {
     // }
     // printf("CHK : setcontext\n");
 
-    return thread->tid;
+    return temp->tid;
 }
 
 /***************************************************************************************
@@ -369,8 +368,8 @@ static struct sigaction ticker;
 
 void __scheduler() {
     printf("CHK : __scheduler\n");
-//    if (n_tcbs > 1)
-//        next_tcb();
+   if (n_tcbs > 1)
+       next_tcb();
 }
 
  

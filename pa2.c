@@ -89,6 +89,7 @@ int main(int argc, char* argv[]) {
                 break;
         }
     }
+    printf("FINISH!!!\n");
 
     __free_all_tcbs();
 

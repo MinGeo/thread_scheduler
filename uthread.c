@@ -68,15 +68,13 @@ void next_tcb() {
     {
         case FIFO:
             list_for_each_entry(n_tcb, &tcbs, list) {
-                if (n_tcb != NULL && n_tcb->tid != -1) {
-                    if (current_tid == n_tcb->tid) {
+                if (n_tcb != NULL && current_tid == n_tcb->tid) {
+                    n_tcb = tcbs.next;
+                    if ((n_tcb == NULL) || (n_tcb->tid == -1)) {
                         n_tcb = list_first_entry(&tcbs, struct tcb, list);
-                        if ((next_tcb == NULL) || (n_tcb->tid == -1)) {
-                            n_tcb = list_first_entry(&tcbs, struct tcb, list);
-                        }
-                        fprintf(stderr, "SWAP %d -> %d\n", ((struct tcb *)tcbs.prev)->tid, n_tcb->tid);
-                        swapcontext(((struct tcb *)tcbs.prev)->context, n_tcb->context);
                     }
+                    fprintf(stderr, "SWAP %d -> %d\n", ((struct tcb *)tcbs.prev)->tid, n_tcb->tid);
+                    swapcontext(((struct tcb *)tcbs.prev)->context, n_tcb->context);
                 }
             }
             break;
@@ -161,15 +159,15 @@ void uthread_init(enum uthread_sched_policy policy) {
     sched_policy = policy;
     ucontext_t *context;
     context = malloc(sizeof(ucontext_t));
-    // struct tcb *thread;
-    // thread = malloc(sizeof(struct tcb));
-    // thread->tid = MAIN_THREAD_TID;
-    // thread->lifetime = MAIN_THREAD_LIFETIME;
-    // thread->priority = MAIN_THREAD_PRIORITY;
-    // thread->state = RUNNING;
-    // thread->context = context;
-    // list_add_tail(&thread->list, &tcbs);
-    // n_tcbs++;
+    struct tcb *thread;
+    thread = malloc(sizeof(struct tcb));
+    thread->tid = MAIN_THREAD_TID;
+    thread->lifetime = MAIN_THREAD_LIFETIME;
+    thread->priority = MAIN_THREAD_PRIORITY;
+    thread->state = RUNNING;
+    thread->context = context;
+    list_add_tail(&thread->list, &tcbs);
+    n_tcbs++;
     current_tid = MAIN_THREAD_TID;
     if (getcontext(context)) {
         printf("CHK : main getcontext error\n");
@@ -207,7 +205,7 @@ int uthread_create(void* stub(void *), void* args) {
     temp->context = malloc(sizeof(ucontext_t));
     list_add_tail(&temp->list, &tcbs);
     n_tcbs++;
-    
+
     getcontext(temp->context);
     temp->context->uc_link = &exitContext;   
     temp->context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);

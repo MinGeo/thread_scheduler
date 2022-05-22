@@ -69,25 +69,49 @@ void next_tcb() {
     {
         case FIFO:
             list_for_each_entry(n_tcb, &tcbs, list) {
-                fprintf(stderr, "LOOP : CURRENT %d TCDID %d P %d N %d\n", current_tid, n_tcb->tid, ((struct tcb *)n_tcb->list.prev)->tid, ((struct tcb *)n_tcb->list.next)->tid);
+                // fprintf(stderr, "LOOP : CURRENT %d TCDID %d P %d N %d\n", current_tid, n_tcb->tid, ((struct tcb *)n_tcb->list.prev)->tid, ((struct tcb *)n_tcb->list.next)->tid);
                 if (n_tcb != NULL && current_tid == n_tcb->tid) {
                     p_tcb = n_tcb;
                     if (list_is_last(&n_tcb->list, &tcbs) == 1) {
-                        printf("LAST : list_first_entry\n");
+                    //    printf("LAST : list_first_entry\n");
                         n_tcb = list_first_entry(&tcbs, struct tcb, list);
                     }
                     else
                     {
-                        printf("NEXT : n_tcb->list.next\n");
+                    //    printf("NEXT : n_tcb->list.next\n");
                         n_tcb = ((struct tcb *)n_tcb->list.next);
                     }
                     current_tid = n_tcb->tid;
+                    p_tcb->state = READY;
+                    n_tcb->state = RUNNING;
                     fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
                     swapcontext(p_tcb->context, n_tcb->context);
                 }
             }
             break;
         case RR:
+            list_for_each_entry(n_tcb, &tcbs, list) {
+                // fprintf(stderr, "LOOP : CURRENT %d TCDID %d P %d N %d\n", current_tid, n_tcb->tid, ((struct tcb *)n_tcb->list.prev)->tid, ((struct tcb *)n_tcb->list.next)->tid);
+                if (n_tcb != NULL && current_tid == n_tcb->tid) {
+                    p_tcb = n_tcb;
+                    
+                    if (list_is_last(&n_tcb->list, &tcbs) == 1) {
+                    //    printf("LAST : list_first_entry\n");
+                        n_tcb = list_first_entry(&tcbs, struct tcb, list);
+                    }
+                    else
+                    {
+                    //    printf("NEXT : n_tcb->list.next\n");
+                        n_tcb = ((struct tcb *)n_tcb->list.next);
+                    }
+                    current_tid = n_tcb->tid;
+                    p_tcb->state = READY;
+                    n_tcb->state = RUNNING;
+                    n_tcb->lifetime--;
+                    fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
+                    swapcontext(p_tcb->context, n_tcb->context);
+                }
+            }
             break;
         case PRIO:
             break;
@@ -98,8 +122,6 @@ void next_tcb() {
             break;
     }
 }
-
- 
 
 /***************************************************************************************
  * struct tcb *fifo_scheduling(struct tcb *next)
@@ -223,17 +245,6 @@ int uthread_create(void* stub(void *), void* args) {
     temp->context->uc_stack.ss_size = MAX_STACK_SIZE;
     temp->context->uc_stack.ss_flags = 0;
     makecontext(temp->context, (void *)stub, 0);
- 
-    // fprintf(stderr, "SWAP %d -> %d\n", ((struct tcb *)tcbs.prev)->tid, temp->tid);
-
-    // swapcontext(t_context, temp->context);
-    // printf("CHK : swapcontext\n");
-
-    // if (setcontext(temp->context)) {
-    //     printf("CHK : setcontext error\n");
-    //     return -1;
-    // }
-    // printf("CHK : setcontext\n");
 
     return temp->tid;
 }
@@ -253,7 +264,7 @@ int uthread_create(void* stub(void *), void* args) {
 
 void uthread_join(int tid) {
     /* TODO: You have to implement this function. */
-    printf("This is uthread_join\n");
+    fprintf(stderr, "JOIN %d\n", tid);
 }
 
 /***************************************************************************************

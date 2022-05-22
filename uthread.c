@@ -306,6 +306,7 @@ void uthread_join(int tid) {
                 break;
             }
         }
+        fprintf(stderr, "uthread_join do %d\n", tid);
     }
     fprintf(stderr, "JOIN %d\n", tid);
 }

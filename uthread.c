@@ -69,7 +69,7 @@ void next_tcb() {
     switch (sched_policy)
     {
         case FIFO:
-            printf("CHK next_tcb : FIFO\n");
+            // printf("CHK next_tcb : FIFO\n");
             list_for_each_entry(n_tcb, &tcbs, list) {
                 if (bExit == false && n_tcb != NULL && current_tid == n_tcb->tid) {
                     bExit == true;
@@ -83,9 +83,8 @@ void next_tcb() {
                         }
                         else
                         {
-                        //    printf("NEXT : n_tcb->list.next\n");
                             n_tcb = ((struct tcb *)n_tcb->list.next);
-                            if (n_tcb->lifetime > 0) break;
+                            if (n_tcb->lifetime > 0 && n_tcb->state != TERMINATED) break;
                         }
                     }
                     if (n_tcb->lifetime > 0 && n_tcb->state != TERMINATED) {
@@ -307,7 +306,7 @@ void __exit() {
     struct tcb *temp;
     list_for_each_entry(temp, &tcbs, list) {
         if (temp->tid == current_tid) {
-            fprintf(stderr, "CHK exit : %d\n", temp->tid);
+            fprintf(stderr, "CHK exit : %d, lifetime %d\n", temp->tid, temp->lifetime);
             if (temp->lifetime <= 0) {
                 fprintf(stderr, "CHK TERMINATED : %d\n", temp->tid);
                 temp->state = TERMINATED;

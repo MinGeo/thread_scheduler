@@ -104,6 +104,7 @@ void next_tcb() {
                     bexit = true;
                 }
             }
+            printf("FIFO Finish\n");
             break;
         case RR:
             list_for_each_entry(n_tcb, &tcbs, list) {

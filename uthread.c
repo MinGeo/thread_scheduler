@@ -45,6 +45,7 @@ struct tcb {
  **************************************************************************************/
 
 ucontext_t exitContext;
+int current_tid;
 
 LIST_HEAD(tcbs);
 int n_tcbs = 0;
@@ -66,17 +67,16 @@ void next_tcb() {
     switch (sched_policy)
     {
         case FIFO:
-            fprintf(stderr, "SWAP %d -> %d\n", ((struct tcb *)tcbs.prev)->tid, ((struct tcb *)tcbs.next)->tid);
-            swapcontext(((struct tcb *)tcbs.prev)->context, ((struct tcb *)tcbs.next)->context);
+            struct tcb *next_tcb;
+            next_tcb = (struct tcb *)tcbs.next;
+            if ((next_tcb == NULL) || (next_tcb->tid == -1)) {
+                next_tcb = list_first_entry(&tcbs, struct tcb, list);
+            }
+            // fprintf(stderr, "SWAP %d -> %d\n", ((struct tcb *)tcbs.prev)->tid, ((struct tcb *)tcbs.next)->tid);
+            swapcontext(((struct tcb *)tcbs.prev)->context, next_tcb->context);
             printf("CHK : swapcontext\n");
-            //fprintf(stderr, "SWAP %d -> %d\n", next->tid, temp->tid);
-            //setcontext(next->context);
-            
-            // README.md파일에 보면 아래와 같이 출력 로그 남기라고 되어 있음
-            // FIFO등의 스케쥴 관리 방법에 따른 관리가 가능하도록 구조체 변경할 필요가 있어 보임
             break;
         case RR:
-            //a = rr_scheduling(b);
             break;
         case PRIO:
             break;
@@ -100,34 +100,16 @@ void next_tcb() {
  **************************************************************************************/
 
 struct tcb *fifo_scheduling(struct tcb *next) {
-    printf("This is fifo");
     /* TODO: You have to implement this function. */
-    list_for_each_entry(next, &tcbs, list)
-    {
-        if (next != NULL && next->tid != -1) {
-            if(next->state == READY)
-            {
-                next->state = RUNNING;
-                return next;
-            }
-        
-        }
-    }
-    // 스케쥴링 : FIFO 방식용
-
 }
 
- 
-
 /***************************************************************************************
-
  * struct tcb *rr_scheduling(struct tcb *next)
  *
  * DESCRIPTION
  *
  *    This function returns a tcb pointer using round robin policy
  *
-
  **************************************************************************************/
 
 struct tcb *rr_scheduling(struct tcb *next) {
@@ -135,8 +117,6 @@ struct tcb *rr_scheduling(struct tcb *next) {
     // 스케쥴링 : RR 방식용
 
 }
-
- 
 
 /***************************************************************************************
  * struct tcb *prio_scheduling(struct tcb *next)
@@ -148,21 +128,10 @@ struct tcb *rr_scheduling(struct tcb *next) {
  **************************************************************************************/
 
 struct tcb *prio_scheduling(struct tcb *next) {
-
- 
-
     /* TODO: You have to implement this function. */
-
- 
-
-    // 스케쥴링 : PRIO 방식용
-
 }
 
- 
-
 /***************************************************************************************
-
  * struct tcb *sjf_scheduling(struct tcb *next)
  *
  * DESCRIPTION
@@ -172,21 +141,10 @@ struct tcb *prio_scheduling(struct tcb *next) {
  **************************************************************************************/
 
 struct tcb *sjf_scheduling(struct tcb *next) {
-
- 
-
     /* TODO: You have to implement this function. */
-
- 
-
-    // 스케쥴링 : SJF 방식용
-
 }
-
  
-
 /***************************************************************************************
-
  * uthread_init(enum uthread_sched_policy policy)
  *
  * DESCRIPTION
@@ -206,6 +164,7 @@ void uthread_init(enum uthread_sched_policy policy) {
     thread->context = malloc(sizeof(ucontext_t));
     list_add_tail(&thread->list, &tcbs);
     n_tcbs++;
+    current_tid = MAIN_THREAD_TID;
     if (getcontext(thread->context)) {
         printf("CHK : main getcontext error\n");
         return;
@@ -249,7 +208,7 @@ int uthread_create(void* stub(void *), void* args) {
     temp->context->uc_stack.ss_size = MAX_STACK_SIZE;
     temp->context->uc_stack.ss_flags = 0;
     makecontext(temp->context, (void *)stub, 0);
-
+ 
     fprintf(stderr, "SWAP %d -> %d\n", ((struct tcb *)tcbs.prev)->tid, temp->tid);
     // swapcontext(t_context, temp->context);
     // printf("CHK : swapcontext\n");
@@ -278,22 +237,7 @@ int uthread_create(void* stub(void *), void* args) {
 
 void uthread_join(int tid) {
     /* TODO: You have to implement this function. */
-
     printf("This is uthread_join\n");
-    // struct tcb *temp;
-    // list_for_each_entry(temp, &tcbs, list) {
-    //     if (temp != NULL && temp->tid != -1) {
-    //         // ss_flags
-    //         if (temp->tid == tid) {
-    //             // if 해당 스레드가 실행인지 확인
-    //             // fprintf
-    //             if(temp->state == RUNNING)
-    //             {
-    //                 fprintf(stderr, "JOIN %d\n", temp->tid);
-    //             }
-    //         }
-    //     }
-    // }
 }
 
 /***************************************************************************************
@@ -313,18 +257,6 @@ void uthread_join(int tid) {
 void __exit() {
     /* TODO: You have to implement this function. */
     printf("This is exit\n");
-    // 스레드가 종료되었을때 실행되는 스레드
-    // struct tcb *temp;
-    // list_for_each_entry(temp, &tcbs, list) {
-    //     if (temp != NULL && temp->tid != -1) {
-    //         // ss_flags
-    //         // 
-    //         if (temp->lifetime == 0) {
-    //             temp->state = TERMINATED;
-    //         }
-            
-    //     }
-    // }
 }
  
 /***************************************************************************************
@@ -339,14 +271,12 @@ void __exit() {
 
 void __initialize_exit_context() {
     /* TODO: You have to implement this function. */
-    printf("This is initialize exit context");
     getcontext(&exitContext);
     exitContext.uc_link = 0;   
     exitContext.uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
     exitContext.uc_stack.ss_size = MAX_STACK_SIZE;
     exitContext.uc_stack.ss_flags = 0;
     makecontext(&exitContext, (void *)__exit, 0);
-    printf("exit context makecontext");
 }
  
 /***************************************************************************************
@@ -365,8 +295,6 @@ void __scheduler() {
 }
 
 void __create_run_timer() {
-    printf("CHK : __create_run_timer\n");
-
     // 타이머 설정값
     time_quantum.it_interval.tv_sec = 0;
     time_quantum.it_interval.tv_usec = SCHEDULER_FREQ;  // 1초 

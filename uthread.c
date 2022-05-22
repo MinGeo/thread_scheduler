@@ -67,13 +67,13 @@ void next_tcb() {
     switch (sched_policy)
     {
         case FIFO:
-            struct tcb *next_tcb;
-            next_tcb = (struct tcb *)tcbs.next;
-            if ((next_tcb == NULL) || (next_tcb->tid == -1)) {
-                next_tcb = list_first_entry(&tcbs, struct tcb, list);
+            struct tcb *n_tcb;
+            n_tcb = (struct tcb *)tcbs.next;
+            if ((next_tcb == NULL) || (n_tcb->tid == -1)) {
+                n_tcb = list_first_entry(&tcbs, struct tcb, list);
             }
             // fprintf(stderr, "SWAP %d -> %d\n", ((struct tcb *)tcbs.prev)->tid, ((struct tcb *)tcbs.next)->tid);
-            swapcontext(((struct tcb *)tcbs.prev)->context, next_tcb->context);
+            swapcontext(((struct tcb *)tcbs.prev)->context, n_tcb->context);
             printf("CHK : swapcontext\n");
             break;
         case RR:

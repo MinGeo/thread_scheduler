@@ -334,7 +334,7 @@ void __exit() {
         list_for_each_entry(temp, &tcbs, list) {
             // if (temp->tid != MAIN_THREAD_TID && temp->tid == current_tid) {
             if (temp->tid != MAIN_THREAD_TID && temp->state != TERMINATED && temp->lifetime <= 0) {
-                // fprintf(stderr, "CHK TERMINATED : %d\n", temp->tid);
+                fprintf(stderr, "CHK TERMINATED : %d\n", temp->tid);
                 temp->state = TERMINATED;
             }
         }

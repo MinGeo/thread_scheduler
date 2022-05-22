@@ -89,8 +89,10 @@ void next_tcb() {
                     p_tcb->state = READY;
                     n_tcb->state = RUNNING;
                     n_tcb->lifetime = 0;
-                    fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
-                    swapcontext(p_tcb->context, n_tcb->context);
+                    if (p_tcb->tid != n_tcb->tid) {
+                        fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
+                        swapcontext(p_tcb->context, n_tcb->context);
+                    }
                 }
             }
             break;
@@ -270,13 +272,6 @@ int uthread_create(void* stub(void *), void* args) {
 void uthread_join(int tid) {
     /* TODO: You have to implement this function. */
     fprintf(stderr, "JOIN %d\n", tid);
-
-    struct tcb *temp;
-    list_for_each_entry(temp, &tcbs, list) {
-        fprintf(stderr, "JOIN : %d\n", temp->context->uc_stack.ss_flags);
-    }
-    printf("This is exit\n");
-
 }
 
 /***************************************************************************************
@@ -295,6 +290,7 @@ void uthread_join(int tid) {
 
 void __exit() {
     /* TODO: You have to implement this function. */
+    printf("__exit\n");
     struct tcb *temp;
     list_for_each_entry(temp, &tcbs, list) {
         if (temp->lifetime <= 0) {

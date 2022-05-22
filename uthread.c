@@ -253,7 +253,7 @@ int uthread_create(void* stub(void *), void* args) {
     makecontext(thread->context, (void *)stub, 0);
     printf("makecontext\n");
 
-    swapcontext(mainContext, thread->context);
+    swapcontext(&mainContext, thread->context);
     printf("CHK : swapcontext\n");
 
     // if (setcontext(thread->context)) {

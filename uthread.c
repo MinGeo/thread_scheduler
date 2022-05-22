@@ -67,12 +67,18 @@ void next_tcb() {
     switch (sched_policy)
     {
         case FIFO:
-            n_tcb = (struct tcb *)tcbs.next;
-            if ((next_tcb == NULL) || (n_tcb->tid == -1)) {
-                n_tcb = list_first_entry(&tcbs, struct tcb, list);
+            list_for_each_entry(n_tcb, &tcbs, list) {
+                if (n_tcb != NULL && n_tcb->tid != -1) {
+                    if (current_tid == n_tcb->tid) {
+                        n_tcb = list_first_entry(&tcbs, struct tcb, list);
+                        if ((next_tcb == NULL) || (n_tcb->tid == -1)) {
+                            n_tcb = list_first_entry(&tcbs, struct tcb, list);
+                        }
+                        fprintf(stderr, "SWAP %d -> %d\n", ((struct tcb *)tcbs.prev)->tid, n_tcb->tid);
+                        swapcontext(((struct tcb *)tcbs.prev)->context, n_tcb->context);
+                    }
+                }
             }
-            fprintf(stderr, "SWAP %d -> %d\n", ((struct tcb *)tcbs.prev)->tid, n_tcb->tid);
-            swapcontext(((struct tcb *)tcbs.prev)->context, n_tcb->context);
             break;
         case RR:
             break;

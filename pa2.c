@@ -25,6 +25,7 @@
  *
  ******************************************************************/
 void *__preemptive_worker(void* args) {
+    printf("__preemptive_worker\n");
     while(1);
 }
 
@@ -38,6 +39,7 @@ void *__preemptive_worker(void* args) {
  *
  ******************************************************************/
 void *__non_preemptive_worker(void* args) {
+    printf("__non_preemptive_worker\n");
     for (int i = 0; i < 10000000; i++);
 }
 

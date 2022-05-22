@@ -103,6 +103,7 @@ void next_tcb() {
                         } else {
                             if (p_tcb->tid != n_tcb->tid) {
                                 fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
+                                swapcontext(p_tcb->context, n_tcb->context);
                             }
                         }
                     }
@@ -235,6 +236,10 @@ void uthread_init(enum uthread_sched_policy policy) {
         printf("CHK : main getcontext error\n");
         return;
     }
+    context->uc_link = NULL;   
+    context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
+    context->uc_stack.ss_size = MAX_STACK_SIZE;
+    context->uc_stack.ss_flags = 0;
     t_context = context;
 
     /* DO NOT MODIFY THESE TWO LINES */
@@ -271,7 +276,6 @@ int uthread_create(void* stub(void *), void* args) {
 
     getcontext(temp->context);
     temp->context->uc_link = &exitContext;   
-    // temp->context->uc_link = NULL;   
     temp->context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
     temp->context->uc_stack.ss_size = MAX_STACK_SIZE;
     temp->context->uc_stack.ss_flags = 0;

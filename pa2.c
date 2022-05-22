@@ -65,12 +65,8 @@ int main(int argc, char* argv[]) {
 
     /* Init user level thread library. */
     uthread_init(policy);
-    uthread_create((void *)__non_preemptive_worker, (void *)params);
-
-//    sigprocmask(SIG_UNBLOCK, &mask, NULL);
 
     /* Read input file and run the correct function. */
-    /*
     while (fgets(buf, sizeof(buf), stdin)) {
         ptr = strtok(buf, " ");
         PARSE_FN(ptr, res);
@@ -83,8 +79,8 @@ int main(int argc, char* argv[]) {
 
                 if (policy == FIFO || policy == SJF)
                     uthread_create((void *)__non_preemptive_worker, (void *)params);
-                // else
-                //     uthread_create((void *)__preemptive_worker, (void *)params);
+                else
+                    uthread_create((void *)__preemptive_worker, (void *)params);
                 break;
             case 1: // JOIN
                 // sigprocmask(SIG_UNBLOCK, &mask, NULL);
@@ -95,7 +91,7 @@ int main(int argc, char* argv[]) {
     }
 
     __free_all_tcbs();
-*/
+
 
     return EXIT_SUCCESS;
 }

@@ -266,19 +266,20 @@ void uthread_init(enum uthread_sched_policy policy) {
 int uthread_create(void* stub(void *), void* args) {
     /* TODO: You have to implement this function. */
     printf("CHK : uthread_create\n");
-    ucontext_t context; 
-    getcontext(&context);
-    context.uc_link = 0;   
-    context.uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
-    context.uc_stack.ss_size = MAX_STACK_SIZE;
-    context.uc_stack.ss_flags = 0;
-    makecontext(&context, (void *)stub, 0);
+    ucontext_t *context;
+    context = malloc(sizeof(ucontext_t));
+    getcontext(context);
+    context->uc_link = 0;   
+    context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
+    context->uc_stack.ss_size = MAX_STACK_SIZE;
+    context->uc_stack.ss_flags = 0;
+    makecontext(context, (void *)stub, 0);
     printf("CHK : makecontext(&context, (void *)stub, 0)\n");
  
     // printf("CHK : makecontext\n");
     // swapcontext(t_context, thread->context);
     // printf("CHK : swapcontext\n");
-    if (setcontext(&context)) {
+    if (setcontext(context)) {
         printf("CHK : setcontext error\n");
         return -1;
     }
@@ -287,7 +288,7 @@ int uthread_create(void* stub(void *), void* args) {
     struct tcb *thread;
     thread = malloc(sizeof(struct tcb));
     thread->state = READY;
-    thread->context = &context;
+    thread->context = context;
     thread->tid = ((int *)args)[0];
     thread->lifetime = ((int *)args)[1];
     thread->priority = ((int *)args)[2];

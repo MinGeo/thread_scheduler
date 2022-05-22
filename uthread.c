@@ -253,9 +253,8 @@ int uthread_create(void* stub(void *), void* args) {
     makecontext(thread->context, (void *)stub, 0);
     printf("makecontext\n");
 
-    // printf("CHK : makecontext\n");
-    // swapcontext(t_context, thread->context);
-    // printf("CHK : swapcontext\n");
+    swapcontext(mainContext, thread->context);
+    printf("CHK : swapcontext\n");
 
     // if (setcontext(thread->context)) {
     //     printf("CHK : setcontext error\n");
@@ -280,7 +279,7 @@ int uthread_create(void* stub(void *), void* args) {
  **************************************************************************************/
 
 void uthread_join(int tid) {
-    printf("This is uthread_join");
+    printf("This is uthread_join\n");
     /* TODO: You have to implement this function. */
     // pa2.c unblock 한 것이 바로 적용된다고 할 수 없음으로 블럭이 종료된 것을 확인후
     // 조인 체크 하라는 뜻으로도 해석됨
@@ -318,7 +317,7 @@ void uthread_join(int tid) {
 
 void __exit() {
     /* TODO: You have to implement this function. */
-    printf("This is exit");
+    printf("This is exit\n");
     // 스레드가 종료되었을때 실행되는 스레드
     // struct tcb *temp;
     // list_for_each_entry(temp, &tcbs, list) {

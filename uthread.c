@@ -63,12 +63,48 @@ struct ucontext_t *t_context;
 
 void next_tcb() {
     /* TODO: You have to implement this function. */
+    struct tcb *temp;
     struct tcb *p_tcb;
     struct tcb *n_tcb;
-    bool bexit = false;
     switch (sched_policy)
     {
         case FIFO:
+        for (temp = list_entry((&tcbs)->next, struct tcb, list); &temp->list != (&tcbs);) {
+            n_tcb = temp;
+            if (n_tcb != NULL && current_tid == n_tcb->tid) {
+                fprintf(stderr, "LOOP : CURRENT %d TCDID %d P %d N %d\n", current_tid, n_tcb->tid, ((struct tcb *)n_tcb->list.prev)->tid, ((struct tcb *)n_tcb->list.next)->tid);
+                p_tcb = n_tcb;
+                while (true) {
+                    if (list_is_last(&n_tcb->list, &tcbs) == 1) {
+                    //    printf("LAST : list_first_entry\n");
+                        n_tcb = list_first_entry(&tcbs, struct tcb, list);
+                        break;
+                    }
+                    else
+                    {
+                    //    printf("NEXT : n_tcb->list.next\n");
+                        n_tcb = ((struct tcb *)n_tcb->list.next);
+                        if (n_tcb->lifetime > 0) break;
+                    }
+                }
+                current_tid = n_tcb->tid;
+                if (n_tcb->state == READY) {
+                    n_tcb->state = RUNNING;
+                    fprintf(stderr, "SET %d -> %d\n", p_tcb->tid, n_tcb->tid);
+                    setcontext(n_tcb->context);
+                    n_tcb->lifetime = 0;
+                } else if (n_tcb->state == RUNNING) {
+                    if (p_tcb->tid != n_tcb->tid) {
+                        fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
+                        setcontext(n_tcb->context);
+//                            swapcontext(p_tcb->context, n_tcb->context);
+                    }
+                    n_tcb->lifetime--;
+                }
+            }            
+            temp = list_entry(temp->list.next, struct tcb, list);
+        }
+/*
             list_for_each_entry(n_tcb, &tcbs, list) {
                 if (bexit == false && n_tcb != NULL && current_tid == n_tcb->tid) {
                     fprintf(stderr, "LOOP : CURRENT %d TCDID %d P %d N %d\n", current_tid, n_tcb->tid, ((struct tcb *)n_tcb->list.prev)->tid, ((struct tcb *)n_tcb->list.next)->tid);
@@ -103,6 +139,8 @@ void next_tcb() {
                     bexit = true;
                 }
             }
+            */
+           
             printf("FIFO Finish\n");
             break;
         case RR:

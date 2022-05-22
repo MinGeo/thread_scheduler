@@ -94,7 +94,8 @@ void next_tcb() {
                                 n_tcb->state = RUNNING;
                                 n_tcb->lifetime = 0;
                                 fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
-                                setcontext(n_tcb->context);
+                                swapcontext(p_tcb->context, n_tcb->context);
+                                // setcontext(n_tcb->context);
                             } else {
                                 n_tcb->lifetime = 0;
                                 fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
@@ -103,7 +104,7 @@ void next_tcb() {
                         } else {
                             if (p_tcb->tid != n_tcb->tid) {
                                 fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
-                                setcontext(t_context);
+                                swapcontext(p_tcb->context, n_tcb->context);
                             }
                         }
                     }

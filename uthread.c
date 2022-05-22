@@ -268,7 +268,7 @@ void uthread_join(int tid) {
 
     struct tcb *temp;
     list_for_each_entry(temp, &tcbs, list) {
-        fprintf(stderr, "EXIT : %d\n", temp->context->uc_sigmask);
+        fprintf(stderr, "JOIN : %d\n", temp->context->uc_stack.ss_flags);
     }
     printf("This is exit\n");
 
@@ -292,7 +292,7 @@ void __exit() {
     /* TODO: You have to implement this function. */
     struct tcb *temp;
     list_for_each_entry(temp, &tcbs, list) {
-        fprintf(stderr, "EXIT : %d\n", temp->context->uc_sigmask);
+        fprintf(stderr, "EXIT : %d\n", temp->context->uc_stack.ss_flags);
     }
     printf("This is exit\n");
 }

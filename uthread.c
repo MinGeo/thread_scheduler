@@ -277,7 +277,7 @@ void uthread_join(int tid) {
     list_for_each_entry(temp, &tcbs, list) {
         if (temp->tid == tid) {
             fprintf(stderr, "JOIN %d\n", tid);
-            setcontext(temp);
+            setcontext(temp->context);
         }
     }
 }

@@ -296,14 +296,18 @@ int uthread_create(void* stub(void *), void* args) {
 void uthread_join(int tid) {
     /* TODO: You have to implement this function. */
     fprintf(stderr, "uthread_join %d\n", tid);
-    // fprintf(stderr, "JOIN %d\n", tid);
-    // struct tcb *temp;
-    // list_for_each_entry(temp, &tcbs, list) {
-    //     if (temp->tid == tid) {
-    //     //    fprintf(stderr, "JOIN %d\n", tid);
-    //         setcontext(temp->context);
-    //     }
-    // }
+
+    struct tcb *temp;
+    bool exit = false;
+    while (exit == false) {
+        exit = true;
+        list_for_each_entry(temp, &tcbs, list) {
+            if ((temp->tid != MAIN_THREAD_TID) && (temp->state != TERMINATED)) {
+                exit = false;
+            }
+        }
+    }
+    fprintf(stderr, "JOIN %d\n", tid);
 }
 
 /***************************************************************************************

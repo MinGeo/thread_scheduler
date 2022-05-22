@@ -303,10 +303,10 @@ void uthread_join(int tid) {
         exit = true;
         list_for_each_entry(temp, &tcbs, list) {
             if ((temp->tid != MAIN_THREAD_TID) && (temp->state != TERMINATED)) {
-                fprintf(stderr, "exit fail tid %d\n", temp->tid);
                 exit = false;
             }
         }
+        delay(10);
         if (exit == true)
             printf("JOIN EXIT\n");
         else

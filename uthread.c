@@ -71,7 +71,7 @@ void next_tcb() {
     {
         case FIFO:
             list_for_each_entry(temp, &tcbs, list) {
-                if (bexit == false && n_tcb != NULL && current_tid == temp->tid) {
+                if (bexit == false && temp != NULL && current_tid == temp->tid) {
                     n_tcb = temp;
                     fprintf(stderr, "LOOP : CURRENT %d TCDID %d P %d N %d\n", current_tid, n_tcb->tid, ((struct tcb *)n_tcb->list.prev)->tid, ((struct tcb *)n_tcb->list.next)->tid);
                     p_tcb = n_tcb;

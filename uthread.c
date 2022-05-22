@@ -248,8 +248,8 @@ int uthread_create(void* stub(void *), void* args) {
     n_tcbs++;
 
     getcontext(temp->context);
-    // temp->context->uc_link = &exitContext;   
-    temp->context->uc_link = NULL;   
+    temp->context->uc_link = &exitContext;   
+    // temp->context->uc_link = NULL;   
     temp->context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
     temp->context->uc_stack.ss_size = MAX_STACK_SIZE;
     temp->context->uc_stack.ss_flags = 0;

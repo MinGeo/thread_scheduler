@@ -74,13 +74,13 @@ void next_tcb() {
                     p_tcb = n_tcb;
                     while (true) {
                         if (list_is_last(&n_tcb->list, &tcbs) == 1) {
-                            printf("LAST : list_first_entry\n");
+                        //    printf("LAST : list_first_entry\n");
                             n_tcb = list_first_entry(&tcbs, struct tcb, list);
                             break;
                         }
                         else
                         {
-                            printf("NEXT : n_tcb->list.next\n");
+                        //    printf("NEXT : n_tcb->list.next\n");
                             n_tcb = ((struct tcb *)n_tcb->list.next);
                             if (n_tcb->lifetime > 0) break;
                         }

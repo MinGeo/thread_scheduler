@@ -285,22 +285,7 @@ int uthread_create(void* stub(void *), void* args) {
 
 void uthread_join(int tid) {
     /* TODO: You have to implement this function. */
-    // for (int i = 0; i < 10000000; i++);
-    // for (int i = 0; i < 10000000; i++);
-    // for (int i = 0; i < 10000000; i++);
-    // for (int i = 0; i < 10000000; i++);
-    // for (int i = 0; i < 10000000; i++);
-    // for (int i = 0; i < 10000000; i++);
-    // for (int i = 0; i < 10000000; i++);
-    // for (int i = 0; i < 10000000; i++);
-    // for (int i = 0; i < 10000000; i++);
-    // for (int i = 0; i < 10000000; i++);
-    // for (int i = 0; i < 10000000; i++);
-    // for (int i = 0; i < 10000000; i++);
-    // for (int i = 0; i < 10000000; i++);
-    // for (int i = 0; i < 10000000; i++);
-    // for (int i = 0; i < 10000000; i++);
-    // for (int i = 0; i < 10000000; i++);
+    fprintf(stderr, "uthread_join %d\n", tid);
     // fprintf(stderr, "JOIN %d\n", tid);
     // struct tcb *temp;
     // list_for_each_entry(temp, &tcbs, list) {

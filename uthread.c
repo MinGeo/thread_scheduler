@@ -295,19 +295,13 @@ int uthread_create(void* stub(void *), void* args) {
 
 void uthread_join(int tid) {
     /* TODO: You have to implement this function. */
-    //fprintf(stderr, "uthread_join %d\n", tid);
-
+    fprintf(stderr, "uthread_join %d\n", tid);
     struct tcb *temp;
     while (true) {
-        bool exit = true;
         list_for_each_entry(temp, &tcbs, list) {
-            if ((temp->tid != MAIN_THREAD_TID) && (temp->state != TERMINATED)) {
-                exit = false;
+            if ((temp->tid == tid) && (temp->state == TERMINATED)) {
+                break;
             }
-        }
-        if (exit == true) {
-            printf("JOIN EXIT\n");
-            break;
         }
     }
     fprintf(stderr, "JOIN %d\n", tid);

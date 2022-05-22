@@ -64,7 +64,6 @@ struct ucontext_t *t_context;
 void next_tcb() {
     /* TODO: You have to implement this function. */
     struct tcb *n_tcb;
-    printf("nexttcb\n");
     switch (sched_policy)
     {
         case FIFO:
@@ -72,9 +71,8 @@ void next_tcb() {
             if ((next_tcb == NULL) || (n_tcb->tid == -1)) {
                 n_tcb = list_first_entry(&tcbs, struct tcb, list);
             }
-            // fprintf(stderr, "SWAP %d -> %d\n", ((struct tcb *)tcbs.prev)->tid, ((struct tcb *)tcbs.next)->tid);
+            fprintf(stderr, "SWAP %d -> %d\n", ((struct tcb *)tcbs.prev)->tid, n_tcb->tid);
             swapcontext(((struct tcb *)tcbs.prev)->context, n_tcb->context);
-            printf("CHK : swapcontext\n");
             break;
         case RR:
             break;
@@ -209,7 +207,8 @@ int uthread_create(void* stub(void *), void* args) {
     temp->context->uc_stack.ss_flags = 0;
     makecontext(temp->context, (void *)stub, 0);
  
-    fprintf(stderr, "SWAP %d -> %d\n", ((struct tcb *)tcbs.prev)->tid, temp->tid);
+    // fprintf(stderr, "SWAP %d -> %d\n", ((struct tcb *)tcbs.prev)->tid, temp->tid);
+
     // swapcontext(t_context, temp->context);
     // printf("CHK : swapcontext\n");
 

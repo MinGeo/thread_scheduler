@@ -65,6 +65,7 @@ int main(int argc, char* argv[]) {
     uthread_init(policy);
 
     /* Read input file and run the correct function. */
+/*
     while (fgets(buf, sizeof(buf), stdin)) {
         ptr = strtok(buf, " ");
         PARSE_FN(ptr, res);
@@ -89,6 +90,7 @@ int main(int argc, char* argv[]) {
     }
 
     __free_all_tcbs();
+*/
 
     return EXIT_SUCCESS;
 }

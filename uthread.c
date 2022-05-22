@@ -199,7 +199,6 @@ struct tcb *sjf_scheduling(struct tcb *next) {
  **************************************************************************************/
 
 void uthread_init(enum uthread_sched_policy policy) {
-    printf("This is init");
     /* TODO: You have to implement this function. */
     // policy : 자료 처리 방법을 전달 받음
     // policy 전달 받는 곳이 이곳 뿐임으로 전역변수 사용해서 보관
@@ -213,6 +212,7 @@ void uthread_init(enum uthread_sched_policy policy) {
     // #define MAIN_THREAD_PRIORITY -1
     // LIST_HEAD(tcbs) tcbs에 메인스레드를 하나 추가해야 할 것으로 보임
     // 물론 메인스레드를 리스트에 넣지 않을수도 있음??? 좀더 분석해야 함
+/*
     struct tcb *thread;
     thread = malloc(sizeof(struct tcb));
     thread->context = malloc(20000);
@@ -228,9 +228,12 @@ void uthread_init(enum uthread_sched_policy policy) {
     thread->context->uc_stack.ss_size = MAX_STACK_SIZE;
     thread->context->uc_stack.ss_flags = 0;
     swapcontext(thread->context, t_context);
+*/
+
+
     /* DO NOT MODIFY THESE TWO LINES */
     __create_run_timer();
-    __initialize_exit_context();
+//    __initialize_exit_context();
 }
 
  
@@ -391,23 +394,17 @@ void __initialize_exit_context() {
  *
  **************************************************************************************/
 
- 
-
 static struct itimerval time_quantum;
-
 static struct sigaction ticker;
 
- 
-
 // __create_run_timer에 의해 지정된 시간마다 타이머 실행
-
 // 현재 실행된 스레드 갯수가 1이상이면 다음 스레드로 실행을 순차적으로 돌리는 듯 함수
-
 // 동시성 스레드 실행 coroutine으로 보임
 
 void __scheduler() {
-    if (n_tcbs > 1)
-        next_tcb();
+    printf("This is init");
+//    if (n_tcbs > 1)
+//        next_tcb();
 }
 
  

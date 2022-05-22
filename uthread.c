@@ -298,13 +298,12 @@ void uthread_join(int tid) {
 
 void __exit() {
     /* TODO: You have to implement this function. */
-    printf("__exit\n");
+    // printf("__exit\n");
     struct tcb *temp;
     list_for_each_entry(temp, &tcbs, list) {
-        fprintf(stderr, "lifetime : %d\n", temp->lifetime);
         if (temp->lifetime <= 0) {
             temp->state = TERMINATED;
-            fprintf(stderr, "TERMINATED : %d\n", temp->tid);
+            // fprintf(stderr, "TERMINATED : %d\n", temp->tid);
         }
     }
 }

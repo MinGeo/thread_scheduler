@@ -94,8 +94,7 @@ void next_tcb() {
                                 n_tcb->state = RUNNING;
                                 n_tcb->lifetime = 0;
                                 fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
-                                swapcontext(p_tcb->context, n_tcb->context);
-                                // setcontext(n_tcb->context);
+                                setcontext(n_tcb->context);
                             } else {
                                 n_tcb->lifetime = 0;
                                 fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
@@ -276,7 +275,11 @@ int uthread_create(void* stub(void *), void* args) {
     n_tcbs++;
 
     getcontext(temp->context);
-    temp->context->uc_link = &exitContext;   
+//    temp->context->uc_link = &exitContext;   
+    temp->context->uc_link = t_context;
+    if ((temp->list.prev != NULL) && (((struct tcb *)temp->list.prev)->tid != MAIN_THREAD_TID)) {
+        temp->context->uc_link = &exitContext;   
+    }   
     temp->context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
     temp->context->uc_stack.ss_size = MAX_STACK_SIZE;
     temp->context->uc_stack.ss_flags = 0;

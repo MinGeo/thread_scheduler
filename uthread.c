@@ -69,7 +69,7 @@ void next_tcb() {
         case FIFO:
             list_for_each_entry(n_tcb, &tcbs, list) {
                 if (n_tcb != NULL && current_tid == n_tcb->tid) {
-                    n_tcb = tcbs.next;
+                    n_tcb = ((struct tcb *)tcbs.next);
                     if ((n_tcb == NULL) || (n_tcb->tid == -1)) {
                         n_tcb = list_first_entry(&tcbs, struct tcb, list);
                     }

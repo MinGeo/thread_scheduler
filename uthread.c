@@ -298,7 +298,7 @@ void uthread_join(int tid) {
     fprintf(stderr, "uthread_join %d\n", tid);
     struct tcb *temp;
     bool bExit = false;
-    while (bExit) {
+    while (bExit == false) {
         list_for_each_entry(temp, &tcbs, list) {
             if ((temp->tid == tid) && (temp->state == TERMINATED)) {
                 bExit = true;

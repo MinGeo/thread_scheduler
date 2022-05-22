@@ -89,11 +89,17 @@ void next_tcb() {
                     }
                     if (n_tcb->lifetime > 0 && n_tcb->state != TERMINATED) {
                         current_tid = n_tcb->tid;
-                        n_tcb->state = RUNNING;
-                        if (p_tcb->tid != n_tcb->tid) {
-                            n_tcb->lifetime = 0;
-                            fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
-                            swapcontext(p_tcb->context, n_tcb->context);
+                        if (MAIN_THREAD_TID != n_tcb->tid) {
+                            if (n_tcb->state == READY) {
+                                n_tcb->state = RUNNING;
+                                n_tcb->lifetime = 0;
+                                fprintf(stderr, "SET %d -> %d\n", p_tcb->tid, n_tcb->tid);
+                                setcontext(n_tcb->context);
+                            } else {
+                                n_tcb->lifetime = 0;
+                                fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
+                                swapcontext(p_tcb->context, n_tcb->context);
+                            }
                         }
                     }
                 }

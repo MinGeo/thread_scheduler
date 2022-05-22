@@ -65,12 +65,14 @@ void next_tcb() {
     /* TODO: You have to implement this function. */
     struct tcb *p_tcb;
     struct tcb *n_tcb;
+    struct tcb *temp;
     bool bexit = false;
     switch (sched_policy)
     {
         case FIFO:
-            list_for_each_entry(n_tcb, &tcbs, list) {
-                if (bexit == false && n_tcb != NULL && current_tid == n_tcb->tid) {
+            list_for_each_entry(temp, &tcbs, list) {
+                if (bexit == false && n_tcb != NULL && current_tid == temp->tid) {
+                    n_tcb = temp;
                     fprintf(stderr, "LOOP : CURRENT %d TCDID %d P %d N %d\n", current_tid, n_tcb->tid, ((struct tcb *)n_tcb->list.prev)->tid, ((struct tcb *)n_tcb->list.next)->tid);
                     p_tcb = n_tcb;
                     while (true) {
@@ -92,7 +94,6 @@ void next_tcb() {
                         fprintf(stderr, "SET %d -> %d\n", p_tcb->tid, n_tcb->tid);
                         setcontext(n_tcb->context);
                         n_tcb->lifetime = 0;
-                        break;
                     } else if (n_tcb->state == RUNNING) {
                         if (p_tcb->tid != n_tcb->tid) {
                             fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);

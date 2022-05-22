@@ -102,8 +102,7 @@ void next_tcb() {
                             }
                         } else {
                             if (p_tcb->tid != n_tcb->tid) {
-                                fprintf(stderr, "MAIN SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
-                                setcontext(n_tcb->context);
+                                fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
                             }
                         }
                     }
@@ -298,18 +297,14 @@ void uthread_join(int tid) {
     /* TODO: You have to implement this function. */
     fprintf(stderr, "uthread_join %d\n", tid);
     struct tcb *temp;
-    bool bExit = false;
-    while (bExit == false) {
+    while (true) {
         list_for_each_entry(temp, &tcbs, list) {
             if ((temp->tid == tid) && (temp->state == TERMINATED)) {
-                bExit = true;
-                fprintf(stderr, "uthread_join EXIT %d\n", tid);
-                break;
+                fprintf(stderr, "JOIN %d\n", tid);
+                return;
             }
         }
-        fprintf(stderr, "uthread_join do %d\n", tid);
     }
-    fprintf(stderr, "JOIN %d\n", tid);
 }
 
 /***************************************************************************************

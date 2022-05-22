@@ -212,7 +212,7 @@ void uthread_init(enum uthread_sched_policy policy) {
 
     /* DO NOT MODIFY THESE TWO LINES */
     __create_run_timer();
-//    __initialize_exit_context();
+    __initialize_exit_context();
 }
 
  

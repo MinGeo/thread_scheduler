@@ -285,30 +285,30 @@ int uthread_create(void* stub(void *), void* args) {
 
 void uthread_join(int tid) {
     /* TODO: You have to implement this function. */
-    for (int i = 0; i < 10000000; i++);
-    for (int i = 0; i < 10000000; i++);
-    for (int i = 0; i < 10000000; i++);
-    for (int i = 0; i < 10000000; i++);
-    for (int i = 0; i < 10000000; i++);
-    for (int i = 0; i < 10000000; i++);
-    for (int i = 0; i < 10000000; i++);
-    for (int i = 0; i < 10000000; i++);
-    for (int i = 0; i < 10000000; i++);
-    for (int i = 0; i < 10000000; i++);
-    for (int i = 0; i < 10000000; i++);
-    for (int i = 0; i < 10000000; i++);
-    for (int i = 0; i < 10000000; i++);
-    for (int i = 0; i < 10000000; i++);
-    for (int i = 0; i < 10000000; i++);
-    for (int i = 0; i < 10000000; i++);
-    fprintf(stderr, "JOIN %d\n", tid);
-    struct tcb *temp;
-    list_for_each_entry(temp, &tcbs, list) {
-        if (temp->tid == tid) {
-        //    fprintf(stderr, "JOIN %d\n", tid);
-            setcontext(temp->context);
-        }
-    }
+    // for (int i = 0; i < 10000000; i++);
+    // for (int i = 0; i < 10000000; i++);
+    // for (int i = 0; i < 10000000; i++);
+    // for (int i = 0; i < 10000000; i++);
+    // for (int i = 0; i < 10000000; i++);
+    // for (int i = 0; i < 10000000; i++);
+    // for (int i = 0; i < 10000000; i++);
+    // for (int i = 0; i < 10000000; i++);
+    // for (int i = 0; i < 10000000; i++);
+    // for (int i = 0; i < 10000000; i++);
+    // for (int i = 0; i < 10000000; i++);
+    // for (int i = 0; i < 10000000; i++);
+    // for (int i = 0; i < 10000000; i++);
+    // for (int i = 0; i < 10000000; i++);
+    // for (int i = 0; i < 10000000; i++);
+    // for (int i = 0; i < 10000000; i++);
+    // fprintf(stderr, "JOIN %d\n", tid);
+    // struct tcb *temp;
+    // list_for_each_entry(temp, &tcbs, list) {
+    //     if (temp->tid == tid) {
+    //     //    fprintf(stderr, "JOIN %d\n", tid);
+    //         setcontext(temp->context);
+    //     }
+    // }
 }
 
 /***************************************************************************************
@@ -330,7 +330,7 @@ void __exit() {
     // printf("__exit\n");
     struct tcb *temp;
     list_for_each_entry(temp, &tcbs, list) {
-        if (temp->tid == current_tid) {
+        if (temp->tid == MAIN_THREAD_TID && temp->tid == current_tid) {
             fprintf(stderr, "CHK TERMINATED : %d\n", temp->tid);
             temp->state = TERMINATED;
         }

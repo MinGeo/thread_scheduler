@@ -402,7 +402,7 @@ static struct sigaction ticker;
 // 동시성 스레드 실행 coroutine으로 보임
 
 void __scheduler() {
-    printf("This is init");
+    printf("111");
 //    if (n_tcbs > 1)
 //        next_tcb();
 }
@@ -425,6 +425,7 @@ void __create_run_timer() {
     ticker.sa_flags = 0;
 
     setitimer(ITIMER_REAL, &time_quantum, (struct itimerval*) NULL);
+    printf("222222");
 }
 
 void __free_all_tcbs() {

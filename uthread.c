@@ -88,7 +88,7 @@ void next_tcb() {
                     current_tid = n_tcb->tid;
                     if (n_tcb->state != TERMINATED) {
                         n_tcb->state = RUNNING;
-                        if (p_tcb->tid != n_tcb->tid) {
+                        if (p_tcb->tid != n_tcb->tid && n_tcb->tid != -1) {
                             fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
                             swapcontext(p_tcb->context, n_tcb->context);
                         }

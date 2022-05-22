@@ -253,6 +253,8 @@ int uthread_create(void* stub(void *), void* args) {
     temp->context->uc_stack.ss_flags = 0;
     makecontext(temp->context, (void *)stub, 0);
 
+    setcontext(temp->context);
+
     return temp->tid;
 }
 

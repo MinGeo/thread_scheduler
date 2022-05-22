@@ -302,6 +302,7 @@ void uthread_join(int tid) {
         list_for_each_entry(temp, &tcbs, list) {
             if ((temp->tid == tid) && (temp->state == TERMINATED)) {
                 bExit = true;
+                fprintf(stderr, "uthread_join EXIT %d\n", tid);
                 break;
             }
         }
@@ -331,7 +332,7 @@ void __exit() {
         list_for_each_entry(temp, &tcbs, list) {
             // if (temp->tid != MAIN_THREAD_TID && temp->tid == current_tid) {
             if (temp->tid != MAIN_THREAD_TID && temp->state != TERMINATED && temp->lifetime <= 0) {
-                fprintf(stderr, "CHK TERMINATED : %d\n", temp->tid);
+                // fprintf(stderr, "CHK TERMINATED : %d\n", temp->tid);
                 temp->state = TERMINATED;
             }
         }

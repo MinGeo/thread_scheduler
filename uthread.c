@@ -70,8 +70,8 @@ void next_tcb() {
     {
         case FIFO:
             list_for_each_entry(n_tcb, &tcbs, list) {
-                fprintf(stderr, "LOOP : CURRENT %d TCDID %d P %d N %d\n", current_tid, n_tcb->tid, ((struct tcb *)n_tcb->list.prev)->tid, ((struct tcb *)n_tcb->list.next)->tid);
                 if (bexit == false && n_tcb != NULL && current_tid == n_tcb->tid) {
+                    fprintf(stderr, "LOOP : CURRENT %d TCDID %d P %d N %d\n", current_tid, n_tcb->tid, ((struct tcb *)n_tcb->list.prev)->tid, ((struct tcb *)n_tcb->list.next)->tid);
                     p_tcb = n_tcb;
                     while (true) {
                         if (list_is_last(&n_tcb->list, &tcbs) == 1) {
@@ -103,7 +103,6 @@ void next_tcb() {
                     }
                     bexit = true;
                 }
-                n_tcb = list_first_entry(&tcbs, struct tcb, list);
             }
             printf("FIFO Finish\n");
             break;

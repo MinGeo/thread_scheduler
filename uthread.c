@@ -256,7 +256,7 @@ void uthread_init(enum uthread_sched_policy policy) {
 
 int uthread_create(void* stub(void *), void* args) {
     /* TODO: You have to implement this function. */
-    printf("This is create");
+    printf("CHK : uthread_create\n");
     struct tcb *thread;
     thread = malloc(sizeof(struct tcb));
     thread->state = READY;
@@ -267,6 +267,13 @@ int uthread_create(void* stub(void *), void* args) {
     list_add_tail(&thread->list, &tcbs);
     n_tcbs++;
     makecontext(thread->context, (void *)stub, 0);
+
+    printf("CHK : makecontext\n");
+//    setcontext(thread->context);
+//    printf("CHK : setcontext\n");
+
+
+
     // bgman -----------------------------
     //getcontext(thread->context);
     //thread->state = READY;
@@ -280,8 +287,6 @@ int uthread_create(void* stub(void *), void* args) {
     // bgman -----------------------------
     return thread->tid;
 }
-
- 
 
 /***************************************************************************************
  * uthread_join(int tid)
@@ -402,7 +407,7 @@ static struct sigaction ticker;
 // 동시성 스레드 실행 coroutine으로 보임
 
 void __scheduler() {
-    printf("111");
+    printf("CHK : __scheduler\n");
 //    if (n_tcbs > 1)
 //        next_tcb();
 }
@@ -414,6 +419,8 @@ void __scheduler() {
 // 
 
 void __create_run_timer() {
+    printf("CHK : __create_run_timer\n");
+
     // 타이머 설정값
     time_quantum.it_interval.tv_sec = 0;
     time_quantum.it_interval.tv_usec = SCHEDULER_FREQ;  // 1초 
@@ -425,7 +432,6 @@ void __create_run_timer() {
     ticker.sa_flags = 0;
 
     setitimer(ITIMER_REAL, &time_quantum, (struct itimerval*) NULL);
-    printf("222222");
 }
 
 void __free_all_tcbs() {

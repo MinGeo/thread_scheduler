@@ -25,6 +25,7 @@
  *
  ******************************************************************/
 void *__preemptive_worker(void* args) {
+    printf("CHK : __preemptive_worker\n");
     while(1);
 }
 
@@ -38,6 +39,7 @@ void *__preemptive_worker(void* args) {
  *
  ******************************************************************/
 void *__non_preemptive_worker(void* args) {
+    printf("CHK : __non_preemptive_worker\n");
     for (int i = 0; i < 10000000; i++);
 }
 
@@ -63,6 +65,8 @@ int main(int argc, char* argv[]) {
 
     /* Init user level thread library. */
     uthread_init(policy);
+    uthread_create((void *)__non_preemptive_worker, (void *)params);
+
 
     /* Read input file and run the correct function. */
 /*

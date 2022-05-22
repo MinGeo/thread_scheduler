@@ -71,11 +71,10 @@ void next_tcb() {
                 fprintf(stderr, "LOOP : %d P %d N %d\n", n_tcb->tid, ((struct tcb *)tcbs.prev)->tid, ((struct tcb *)tcbs.next)->tid);
                 if (n_tcb != NULL && current_tid == n_tcb->tid) {
                     n_tcb = ((struct tcb *)tcbs.next);
-                    fprintf(stderr, "----- : %d P %d N %d\n", n_tcb->tid, ((struct tcb *)n_tcb->list.prev)->tid, ((struct tcb *)n_tcb->list.next)->tid);
                     if ((n_tcb == NULL) || (n_tcb->tid == -1)) {
                         n_tcb = list_first_entry(&tcbs, struct tcb, list);
-                        fprintf(stderr, "===== : %d P %d N %d\n", n_tcb->tid, ((struct tcb *)n_tcb->list.prev)->tid, ((struct tcb *)n_tcb->list.next)->tid);
                     }
+                    current_tid = n_tcb->tid;
                     fprintf(stderr, "SWAP %d -> %d\n", ((struct tcb *)tcbs.prev)->tid, n_tcb->tid);
                     swapcontext(((struct tcb *)tcbs.prev)->context, n_tcb->context);
                 }

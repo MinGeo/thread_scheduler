@@ -251,15 +251,15 @@ int uthread_create(void* stub(void *), void* args) {
     makecontext(temp->context, (void *)stub, 0);
     printf("makecontext\n");
 
-    fprintf(stderr, "SWAP %d -> %d\n", ((struct tcb *)tcbs.prev)->tid, temp->tid);
-    swapcontext(t_context, temp->context);
-    printf("CHK : swapcontext\n");
+    // fprintf(stderr, "SWAP %d -> %d\n", ((struct tcb *)tcbs.prev)->tid, temp->tid);
+    // swapcontext(t_context, temp->context);
+    // printf("CHK : swapcontext\n");
 
-    // if (setcontext(thread->context)) {
-    //     printf("CHK : setcontext error\n");
-    //     return -1;
-    // }
-    // printf("CHK : setcontext\n");
+    if (setcontext(temp->context)) {
+        printf("CHK : setcontext error\n");
+        return -1;
+    }
+    printf("CHK : setcontext\n");
 
     return temp->tid;
 }

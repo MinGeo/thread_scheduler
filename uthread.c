@@ -3,6 +3,7 @@
 #include <signal.h>
 #include <sys/time.h>
 #include <ucontext.h>
+#include <unistd.h>
 #include "uthread.h"
 #include "list_head.h"
 #include "types.h"
@@ -306,7 +307,7 @@ void uthread_join(int tid) {
                 break;
             }
         }
-        sleep(10);
+        sleep(1);
     }
     fprintf(stderr, "JOIN %d\n", tid);
 }

@@ -102,7 +102,7 @@ void next_tcb() {
                             }
                         } else {
                             if (p_tcb->tid != n_tcb->tid) {
-                                fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
+                                fprintf(stderr, "MAIN SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
                                 swapcontext(p_tcb->context, n_tcb->context);
                             }
                         }

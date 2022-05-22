@@ -93,6 +93,7 @@ void next_tcb() {
                     fprintf(stderr, "SET %d -> %d\n", p_tcb->tid, n_tcb->tid);
                     setcontext(n_tcb->context);
                     n_tcb->lifetime = 0;
+                    break;
                 } else if (n_tcb->state == RUNNING) {
                     if (p_tcb->tid != n_tcb->tid) {
                         fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
@@ -100,6 +101,7 @@ void next_tcb() {
 //                            swapcontext(p_tcb->context, n_tcb->context);
                     }
                     n_tcb->lifetime--;
+                    break;
                 }
             }            
             temp = list_entry(temp->list.next, struct tcb, list);
@@ -140,7 +142,7 @@ void next_tcb() {
                 }
             }
             */
-           
+
             printf("FIFO Finish\n");
             break;
         case RR:

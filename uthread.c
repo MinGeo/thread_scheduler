@@ -103,7 +103,8 @@ void next_tcb() {
                     }
                     bexit = true;
                 }
-            }
+                n_tcb = list_first_entry(&tcbs, struct tcb, list);
+            }s
             printf("FIFO Finish\n");
             break;
         case RR:

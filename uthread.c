@@ -231,6 +231,7 @@ void uthread_init(enum uthread_sched_policy policy) {
 */
 
     getcontext(t_context);
+    printf("CHK : getcontext(t_context)\n");
 
     /* DO NOT MODIFY THESE TWO LINES */
     __create_run_timer();

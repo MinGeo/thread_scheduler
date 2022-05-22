@@ -267,9 +267,22 @@ int uthread_create(void* stub(void *), void* args) {
     /* TODO: You have to implement this function. */
     printf("CHK : uthread_create\n");
     ucontext_t context; 
+    if (getcontext(&context)) {
+        printf("CHK : context 222 error\n");
+        return;
+    }
     makecontext(&context, (void *)stub, 0);
-   printf("CHK : makecontext(&context, (void *)stub, 0)\n");
+    printf("CHK : makecontext(&context, (void *)stub, 0)\n");
  
+    // printf("CHK : makecontext\n");
+    // swapcontext(t_context, thread->context);
+    // printf("CHK : swapcontext\n");
+    if (setcontext(&context)) {
+        printf("CHK : setcontext error\n");
+        return;
+    }
+    printf("CHK : setcontext\n");
+
     struct tcb *thread;
     thread = malloc(sizeof(struct tcb));
     thread->state = READY;
@@ -280,12 +293,6 @@ int uthread_create(void* stub(void *), void* args) {
     list_add_tail(&thread->list, &tcbs);
     n_tcbs++;
 
-
-    // printf("CHK : makecontext\n");
-    // swapcontext(t_context, thread->context);
-    // printf("CHK : swapcontext\n");
-    setcontext(&context);
-    printf("CHK : setcontext\n");
 
 
 

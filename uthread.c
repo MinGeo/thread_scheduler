@@ -65,11 +65,14 @@ void next_tcb() {
     /* TODO: You have to implement this function. */
     struct tcb *p_tcb;
     struct tcb *n_tcb;
+    bool bExit = false;
     switch (sched_policy)
     {
         case FIFO:
+            printf("CHK next_tcb : FIFO\n");
             list_for_each_entry(n_tcb, &tcbs, list) {
-                if (n_tcb != NULL && current_tid == n_tcb->tid) {
+                if (bExit == false && n_tcb != NULL && current_tid == n_tcb->tid) {
+                    bExit == true;
                     // fprintf(stderr, "LOOP : CURRENT %d TCDID %d P %d N %d\n", current_tid, n_tcb->tid, ((struct tcb *)n_tcb->list.prev)->tid, ((struct tcb *)n_tcb->list.next)->tid);
                     p_tcb = n_tcb;
                     while (true) {
@@ -85,12 +88,12 @@ void next_tcb() {
                             if (n_tcb->lifetime > 0) break;
                         }
                     }
-                    current_tid = n_tcb->tid;
                     if (n_tcb->lifetime > 0 && n_tcb->state != TERMINATED) {
+                        current_tid = n_tcb->tid;
                         n_tcb->state = RUNNING;
                         if (p_tcb->tid != n_tcb->tid) {
+                            n_tcb->lifetime--;
                             fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
-                            n_tcb->lifetime = 0;
                             swapcontext(p_tcb->context, n_tcb->context);
                         }
                     }
@@ -301,14 +304,16 @@ void uthread_join(int tid) {
 void __exit() {
     /* TODO: You have to implement this function. */
     // printf("__exit\n");
-/*    struct tcb *temp;
+    struct tcb *temp;
     list_for_each_entry(temp, &tcbs, list) {
-        if (temp->lifetime <= 0) {
-            temp->state = TERMINATED;
-            // fprintf(stderr, "TERMINATED : %d\n", temp->tid);
+        if (temp->tid == current_tid) {
+            fprintf(stderr, "CHK exit : %d\n", temp->tid);
+            if (temp->lifetime <= 0) {
+                fprintf(stderr, "CHK TERMINATED : %d\n", temp->tid);
+                temp->state = TERMINATED;
+            }
         }
     }
-*/
 }
  
 /***************************************************************************************

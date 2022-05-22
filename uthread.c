@@ -256,11 +256,11 @@ int uthread_create(void* stub(void *), void* args) {
     // swapcontext(t_context, thread->context);
     // printf("CHK : swapcontext\n");
 
-    // if (setcontext(thread->context)) {
-    //     printf("CHK : setcontext error\n");
-    //     return -1;
-    // }
-    // printf("CHK : setcontext\n");
+    if (setcontext(thread->context)) {
+        printf("CHK : setcontext error\n");
+        return -1;
+    }
+    printf("CHK : setcontext\n");
 
     return thread->tid;
 }

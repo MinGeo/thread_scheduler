@@ -44,9 +44,7 @@ struct tcb {
  *
  **************************************************************************************/
 
-
 ucontext_t mainContext;
-
 
 LIST_HEAD(tcbs);
 int n_tcbs = 0;
@@ -205,40 +203,11 @@ struct tcb *sjf_scheduling(struct tcb *next) {
 
 void uthread_init(enum uthread_sched_policy policy) {
     /* TODO: You have to implement this function. */
-    // policy : 자료 처리 방법을 전달 받음
-    // policy 전달 받는 곳이 이곳 뿐임으로 전역변수 사용해서 보관
     sched_policy = policy;
-    // ?
-    //getcontext(); // t_contextdp 메인스레드 넣는 것인지 확인 필요함
-    // ?
-    // uthread.h 파일을 보면
-    // #define MAIN_THREAD_TID -1
-    // #define MAIN_THREAD_LIFETIME 1000
-    // #define MAIN_THREAD_PRIORITY -1
-    // LIST_HEAD(tcbs) tcbs에 메인스레드를 하나 추가해야 할 것으로 보임
-    // 물론 메인스레드를 리스트에 넣지 않을수도 있음??? 좀더 분석해야 함
-/*
-    struct tcb *thread;
-    thread = malloc(sizeof(struct tcb));
-    thread->context = malloc(20000);
-    //getcontext(thread->context);
-    //getcontext(t_context);
-    getcontext(thread->context);
-    thread->tid = MAIN_THREAD_TID;
-    thread->lifetime = MAIN_THREAD_LIFETIME;
-    thread->priority = MAIN_THREAD_PRIORITY;
-    thread->state = RUNNING;
-    thread->context->uc_link = 0;   
-    thread->context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
-    thread->context->uc_stack.ss_size = MAX_STACK_SIZE;
-    thread->context->uc_stack.ss_flags = 0;
-    swapcontext(thread->context, t_context);
-*/
     if (getcontext(&mainContext)) {
-        printf("CHK : getcontext error\n");
+        printf("CHK : main getcontext error\n");
         return;
     }
-    printf("CHK : getcontext(mainContext)\n");
 
     /* DO NOT MODIFY THESE TWO LINES */
     __create_run_timer();
@@ -265,50 +234,34 @@ void uthread_init(enum uthread_sched_policy policy) {
 
 int uthread_create(void* stub(void *), void* args) {
     /* TODO: You have to implement this function. */
-    printf("CHK : uthread_create\n");
-    ucontext_t *context;
-    context = malloc(sizeof(ucontext_t));
-    getcontext(context);
-    context->uc_link = 0;   
-    context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
-    context->uc_stack.ss_size = MAX_STACK_SIZE;
-    context->uc_stack.ss_flags = 0;
-    makecontext(context, (void *)stub, 0);
-    printf("CHK : makecontext(&context, (void *)stub, 0)\n");
- 
-    // printf("CHK : makecontext\n");
-    // swapcontext(t_context, thread->context);
-    // printf("CHK : swapcontext\n");
-    if (setcontext(context)) {
-        printf("CHK : setcontext error\n");
-        return -1;
-    }
-    printf("CHK : setcontext\n");
-
     struct tcb *thread;
     thread = malloc(sizeof(struct tcb));
-    thread->state = READY;
-    thread->context = context;
     thread->tid = ((int *)args)[0];
     thread->lifetime = ((int *)args)[1];
     thread->priority = ((int *)args)[2];
+    thread->state = READY;
+    thread->context = malloc(sizeof(ucontext_t));
     list_add_tail(&thread->list, &tcbs);
     n_tcbs++;
+    
+    getcontext(thread->context);
+    thread->context->uc_link = 0;   
+    thread->context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
+    thread->context->uc_stack.ss_size = MAX_STACK_SIZE;
+    thread->context->uc_stack.ss_flags = 0;
+    makecontext(thread->context, (void *)stub, 0);
+    printf("makecontext\n");
 
+    // printf("CHK : makecontext\n");
+    // swapcontext(t_context, thread->context);
+    // printf("CHK : swapcontext\n");
 
+    // if (setcontext(thread->context)) {
+    //     printf("CHK : setcontext error\n");
+    //     return -1;
+    // }
+    // printf("CHK : setcontext\n");
 
-
-    // bgman -----------------------------
-    //getcontext(thread->context);
-    //thread->state = READY;
-    //thread->list = list;
-    //getcontext(thread->context);
-    // thread->context.uc_link 스레드가 종료되면 돌아오는 스레드를 지정하는듯 함
-    // __initialize_exit_context에서 생성한 스레드를 넣으면 될 것 같은데
-    // __initialize_exit_context에서 어떻게 이 스레드가 종료되어서 넘어온건지 알 수 있는 방법 필요함
-    // 전역변수에 있는 t_context가  __initialize_exit_context에서 생성한 종료일수도 있음
-    // 스레드 실행하고 바로 SWAP 해야 하는지 확인 필요함
-    // bgman -----------------------------
     return thread->tid;
 }
 

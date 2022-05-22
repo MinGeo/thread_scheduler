@@ -306,10 +306,10 @@ void uthread_join(int tid) {
                 exit = false;
             }
         }
-        // if (exit == true)
-        //     printf("JOIN EXIT\n");
+        if (exit == true)
+            printf("JOIN EXIT\n");
         // else
-        //     printf("JOIN WAIT\n");
+        //    printf("JOIN WAIT\n");
     }
     fprintf(stderr, "JOIN %d\n", tid);
 }

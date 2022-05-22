@@ -229,8 +229,11 @@ void uthread_init(enum uthread_sched_policy policy) {
     thread->context->uc_stack.ss_flags = 0;
     swapcontext(thread->context, t_context);
 */
-
-    getcontext(t_context);
+    ucontext_t context;
+    if (getcontext(&context)) {
+        printf("CHK : getcontext error\n");
+        return;
+    }
     printf("CHK : getcontext(t_context)\n");
 
     /* DO NOT MODIFY THESE TWO LINES */

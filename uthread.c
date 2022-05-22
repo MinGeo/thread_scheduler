@@ -322,12 +322,14 @@ void uthread_join(int tid) {
 
 void __exit() {
     /* TODO: You have to implement this function. */
-    printf("__exit\n");
-    struct tcb *temp;
-    list_for_each_entry(temp, &tcbs, list) {
-        if (temp->tid != MAIN_THREAD_TID && temp->tid == current_tid) {
-            fprintf(stderr, "CHK TERMINATED : %d\n", temp->tid);
-            temp->state = TERMINATED;
+    while (true) {
+        printf("__exit\n");
+        struct tcb *temp;
+        list_for_each_entry(temp, &tcbs, list) {
+            if (temp->tid != MAIN_THREAD_TID && temp->tid == current_tid) {
+                fprintf(stderr, "CHK TERMINATED : %d\n", temp->tid);
+                temp->state = TERMINATED;
+            }
         }
     }
 }

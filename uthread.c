@@ -174,7 +174,7 @@ void uthread_init(enum uthread_sched_policy policy) {
     thread->state = RUNNING;
     thread->context = context;
     INIT_LIST_HEAD(&thread->list);
-    list_add(&thread->list, &tcbs);
+    list_add_tail(&thread->list, &tcbs);
     n_tcbs++;
     current_tid = MAIN_THREAD_TID;
     if (getcontext(context)) {
@@ -212,7 +212,7 @@ int uthread_create(void* stub(void *), void* args) {
     temp->state = READY;
     temp->context = malloc(sizeof(ucontext_t));
     INIT_LIST_HEAD(&temp->list);
-    list_add(&temp->list, &tcbs);
+    list_add_tail(&temp->list, &tcbs);
     n_tcbs++;
 
     getcontext(temp->context);

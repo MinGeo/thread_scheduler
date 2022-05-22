@@ -83,9 +83,9 @@ int main(int argc, char* argv[]) {
                     uthread_create((void *)__preemptive_worker, (void *)params);
                 break;
             case 1: // JOIN
-                // sigprocmask(SIG_UNBLOCK, &mask, NULL);
-                // target = atoi(strtok(NULL, " "));
-                // uthread_join(target);
+                sigprocmask(SIG_UNBLOCK, &mask, NULL);
+                target = atoi(strtok(NULL, " "));
+                uthread_join(target);
                 break;
         }
     }

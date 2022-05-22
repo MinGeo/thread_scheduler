@@ -249,17 +249,16 @@ int uthread_create(void* stub(void *), void* args) {
     temp->context->uc_stack.ss_size = MAX_STACK_SIZE;
     temp->context->uc_stack.ss_flags = 0;
     makecontext(temp->context, (void *)stub, 0);
-    printf("makecontext\n");
 
-    // fprintf(stderr, "SWAP %d -> %d\n", ((struct tcb *)tcbs.prev)->tid, temp->tid);
+    fprintf(stderr, "SWAP %d -> %d\n", ((struct tcb *)tcbs.prev)->tid, temp->tid);
     // swapcontext(t_context, temp->context);
     // printf("CHK : swapcontext\n");
 
-    if (setcontext(temp->context)) {
-        printf("CHK : setcontext error\n");
-        return -1;
-    }
-    printf("CHK : setcontext\n");
+    // if (setcontext(temp->context)) {
+    //     printf("CHK : setcontext error\n");
+    //     return -1;
+    // }
+    // printf("CHK : setcontext\n");
 
     return temp->tid;
 }
@@ -278,27 +277,24 @@ int uthread_create(void* stub(void *), void* args) {
  **************************************************************************************/
 
 void uthread_join(int tid) {
-    printf("This is uthread_join\n");
     /* TODO: You have to implement this function. */
-    // pa2.c unblock 한 것이 바로 적용된다고 할 수 없음으로 블럭이 종료된 것을 확인후
-    // 조인 체크 하라는 뜻으로도 해석됨
-    struct tcb *temp;
-    list_for_each_entry(temp, &tcbs, list) {
-        if (temp != NULL && temp->tid != -1) {
-            // ss_flags
-            if (temp->tid == tid) {
-                // if 해당 스레드가 실행인지 확인
-                // fprintf
-                if(temp->state == RUNNING)
-                {
-                    fprintf(stderr, "JOIN %d\n", temp->tid);
-                }
-            }
-        }
-    }
-}
 
- 
+    printf("This is uthread_join\n");
+    // struct tcb *temp;
+    // list_for_each_entry(temp, &tcbs, list) {
+    //     if (temp != NULL && temp->tid != -1) {
+    //         // ss_flags
+    //         if (temp->tid == tid) {
+    //             // if 해당 스레드가 실행인지 확인
+    //             // fprintf
+    //             if(temp->state == RUNNING)
+    //             {
+    //                 fprintf(stderr, "JOIN %d\n", temp->tid);
+    //             }
+    //         }
+    //     }
+    // }
+}
 
 /***************************************************************************************
  * __exit()
@@ -362,21 +358,11 @@ void __initialize_exit_context() {
 static struct itimerval time_quantum;
 static struct sigaction ticker;
 
-// __create_run_timer에 의해 지정된 시간마다 타이머 실행
-// 현재 실행된 스레드 갯수가 1이상이면 다음 스레드로 실행을 순차적으로 돌리는 듯 함수
-// 동시성 스레드 실행 coroutine으로 보임
-
 void __scheduler() {
     printf("CHK : __scheduler\n");
    if (n_tcbs > 1)
        next_tcb();
 }
-
- 
-// 타이머 실행
-// https://m.blog.naver.com/PostView.naver?isHttpsRedirect=true&blogId=skssim&logNo=121292037
-// scheduler 함수를 지정된 설정에 의해서 실행시키는 것 같음 ???
-// 
 
 void __create_run_timer() {
     printf("CHK : __create_run_timer\n");
@@ -396,8 +382,6 @@ void __create_run_timer() {
 
 void __free_all_tcbs() {
     struct tcb *temp;
-    // 자료 구조에 담겨 있는 자료 순환하면서 자료를 리스트에서 삭제하고
-    // 스레드 메모리 반환
     list_for_each_entry(temp, &tcbs, list) {
         if (temp != NULL && temp->tid != -1) {
             list_del(&temp->list);

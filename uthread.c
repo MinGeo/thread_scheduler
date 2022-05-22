@@ -86,13 +86,17 @@ void next_tcb() {
                         }
                     }
                     current_tid = n_tcb->tid;
-                    p_tcb->state = READY;
-                    n_tcb->state = RUNNING;
-                    n_tcb->lifetime = 0;
-                    if (p_tcb->tid != n_tcb->tid) {
+                    if (n_tcb->state == READY) {
+                        n_tcb->state = RUNNING;
                         fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
-                        swapcontext(p_tcb->context, n_tcb->context);
+                        setcontext(n_tcb->context);
+                    } else if (n_tcb->state == RUNNING) {
+                        if (p_tcb->tid != n_tcb->tid) {
+                            fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
+                            swapcontext(p_tcb->context, n_tcb->context);
+                        }
                     }
+                    n_tcb->lifetime--;
                 }
             }
             break;
@@ -252,8 +256,6 @@ int uthread_create(void* stub(void *), void* args) {
     temp->context->uc_stack.ss_size = MAX_STACK_SIZE;
     temp->context->uc_stack.ss_flags = 0;
     makecontext(temp->context, (void *)stub, 0);
-
-    setcontext(temp->context);
 
     return temp->tid;
 }

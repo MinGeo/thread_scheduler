@@ -63,11 +63,11 @@ struct ucontext_t *t_context;
 
 void next_tcb() {
     /* TODO: You have to implement this function. */
+    struct tcb *n_tcb;
     printf("nexttcb\n");
     switch (sched_policy)
     {
         case FIFO:
-            struct tcb *n_tcb;
             n_tcb = (struct tcb *)tcbs.next;
             if ((next_tcb == NULL) || (n_tcb->tid == -1)) {
                 n_tcb = list_first_entry(&tcbs, struct tcb, list);

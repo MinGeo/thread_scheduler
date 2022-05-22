@@ -230,6 +230,7 @@ void uthread_init(enum uthread_sched_policy policy) {
     swapcontext(thread->context, t_context);
 */
 
+    getcontext(t_context);
 
     /* DO NOT MODIFY THESE TWO LINES */
     __create_run_timer();
@@ -269,8 +270,10 @@ int uthread_create(void* stub(void *), void* args) {
     makecontext(thread->context, (void *)stub, 0);
 
     printf("CHK : makecontext\n");
-    setcontext(thread->context);
-    printf("CHK : setcontext\n");
+    swapcontext(t_context, thread->context);
+    printf("CHK : swapcontext\n");
+    // setcontext(thread->context);
+    // printf("CHK : setcontext\n");
 
 
 

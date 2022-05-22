@@ -306,7 +306,7 @@ void uthread_join(int tid) {
                 break;
             }
         }
-        sleep(100);
+        sleep(10);
     }
     fprintf(stderr, "JOIN %d\n", tid);
 }

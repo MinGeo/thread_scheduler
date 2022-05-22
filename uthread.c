@@ -44,11 +44,16 @@ struct tcb {
  *
  **************************************************************************************/
 
+
+ucontext_t mainContext;
+
+
 LIST_HEAD(tcbs);
 int n_tcbs = 0;
-ucontext_t *t_context;
+struct ucontext_t *t_context;
 sigset_t mask;
 struct tcb *fifo_scheduling(struct tcb *next);
+
 /***************************************************************************************
  * next_tcb()
  *
@@ -229,12 +234,11 @@ void uthread_init(enum uthread_sched_policy policy) {
     thread->context->uc_stack.ss_flags = 0;
     swapcontext(thread->context, t_context);
 */
-    ucontext_t context;
-    if (getcontext(&context)) {
+    if (getcontext(&mainContext)) {
         printf("CHK : getcontext error\n");
         return;
     }
-    printf("CHK : getcontext(t_context)\n");
+    printf("CHK : getcontext(mainContext)\n");
 
     /* DO NOT MODIFY THESE TWO LINES */
     __create_run_timer();
@@ -262,20 +266,24 @@ void uthread_init(enum uthread_sched_policy policy) {
 int uthread_create(void* stub(void *), void* args) {
     /* TODO: You have to implement this function. */
     printf("CHK : uthread_create\n");
+    ucontext_t context; 
+    makecontext(&context, (void *)stub, 0);
+   printf("CHK : makecontext(&context, (void *)stub, 0)\n");
+ 
     struct tcb *thread;
     thread = malloc(sizeof(struct tcb));
     thread->state = READY;
-    thread->context = malloc(2000);
+    thread->context = &context;
     thread->tid = ((int *)args)[0];
     thread->lifetime = ((int *)args)[1];
     thread->priority = ((int *)args)[2];
     list_add_tail(&thread->list, &tcbs);
     n_tcbs++;
-    makecontext(thread->context, (void *)stub, 0);
 
-    printf("CHK : makecontext\n");
-    swapcontext(t_context, thread->context);
-    printf("CHK : swapcontext\n");
+
+    // printf("CHK : makecontext\n");
+    // swapcontext(t_context, thread->context);
+    // printf("CHK : swapcontext\n");
     // setcontext(thread->context);
     // printf("CHK : setcontext\n");
 

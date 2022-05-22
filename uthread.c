@@ -88,7 +88,7 @@ void next_tcb() {
                     current_tid = n_tcb->tid;
                     if (n_tcb->state != TERMINATED) {
                         n_tcb->state = RUNNING;
-                        if (p_tcb->tid != n_tcb->tid && n_tcb->tid != -1) {
+                        if (p_tcb->tid != n_tcb->tid) {
                             fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
                             swapcontext(p_tcb->context, n_tcb->context);
                         }
@@ -272,6 +272,7 @@ int uthread_create(void* stub(void *), void* args) {
 
 void uthread_join(int tid) {
     /* TODO: You have to implement this function. */
+    for (int i = 0; i < 10000000; i++);
     fprintf(stderr, "JOIN %d\n", tid);
     struct tcb *temp;
     list_for_each_entry(temp, &tcbs, list) {

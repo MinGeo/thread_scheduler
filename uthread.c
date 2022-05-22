@@ -306,7 +306,6 @@ void uthread_join(int tid) {
                 exit = false;
             }
         }
-        delay(10);
         if (exit == true)
             printf("JOIN EXIT\n");
         else

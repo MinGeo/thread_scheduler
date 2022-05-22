@@ -298,18 +298,17 @@ void uthread_join(int tid) {
     //fprintf(stderr, "uthread_join %d\n", tid);
 
     struct tcb *temp;
-    bool exit = false;
-    while (exit == false) {
-        exit = true;
+    while (true) {
+        bool exit = true;
         list_for_each_entry(temp, &tcbs, list) {
             if ((temp->tid != MAIN_THREAD_TID) && (temp->state != TERMINATED)) {
                 exit = false;
             }
         }
-        if (exit == true)
+        if (exit == true) {
             printf("JOIN EXIT\n");
-        // else
-        //    printf("JOIN WAIT\n");
+            break;
+        }
     }
     fprintf(stderr, "JOIN %d\n", tid);
 }
@@ -336,7 +335,7 @@ void __exit() {
         list_for_each_entry(temp, &tcbs, list) {
             // if (temp->tid != MAIN_THREAD_TID && temp->tid == current_tid) {
             if (temp->tid != MAIN_THREAD_TID && temp->state != TERMINATED && temp->lifetime <= 0) {
-                // fprintf(stderr, "CHK TERMINATED : %d\n", temp->tid);
+                fprintf(stderr, "CHK TERMINATED : %d\n", temp->tid);
                 temp->state = TERMINATED;
             }
         }

@@ -72,18 +72,23 @@ void next_tcb() {
                 // fprintf(stderr, "LOOP : CURRENT %d TCDID %d P %d N %d\n", current_tid, n_tcb->tid, ((struct tcb *)n_tcb->list.prev)->tid, ((struct tcb *)n_tcb->list.next)->tid);
                 if (n_tcb != NULL && current_tid == n_tcb->tid) {
                     p_tcb = n_tcb;
-                    if (list_is_last(&n_tcb->list, &tcbs) == 1) {
-                    //    printf("LAST : list_first_entry\n");
-                        n_tcb = list_first_entry(&tcbs, struct tcb, list);
-                    }
-                    else
-                    {
-                    //    printf("NEXT : n_tcb->list.next\n");
-                        n_tcb = ((struct tcb *)n_tcb->list.next);
+                    while (true) {
+                        if (list_is_last(&n_tcb->list, &tcbs) == 1) {
+                        //    printf("LAST : list_first_entry\n");
+                            n_tcb = list_first_entry(&tcbs, struct tcb, list);
+                            break;
+                        }
+                        else
+                        {
+                        //    printf("NEXT : n_tcb->list.next\n");
+                            n_tcb = ((struct tcb *)n_tcb->list.next);
+                            if (n_tcb->lifetime > 0) break;
+                        }
                     }
                     current_tid = n_tcb->tid;
                     p_tcb->state = READY;
                     n_tcb->state = RUNNING;
+                    n_tcb->lifetime = 0;
                     fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
                     swapcontext(p_tcb->context, n_tcb->context);
                 }
@@ -292,9 +297,11 @@ void __exit() {
     /* TODO: You have to implement this function. */
     struct tcb *temp;
     list_for_each_entry(temp, &tcbs, list) {
-        fprintf(stderr, "EXIT : %d\n", temp->context->uc_stack.ss_flags);
+        if (temp->lifetime <= 0) {
+            temp->state = TERMINATED;
+            fprintf(stderr, "TERMINATED : %d\n", temp->tid);
+        }
     }
-    printf("This is exit\n");
 }
  
 /***************************************************************************************

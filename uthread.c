@@ -295,7 +295,7 @@ int uthread_create(void* stub(void *), void* args) {
 
 void uthread_join(int tid) {
     /* TODO: You have to implement this function. */
-    fprintf(stderr, "uthread_join %d\n", tid);
+    //fprintf(stderr, "uthread_join %d\n", tid);
 
     struct tcb *temp;
     bool exit = false;
@@ -306,10 +306,10 @@ void uthread_join(int tid) {
                 exit = false;
             }
         }
-        if (exit == true)
-            printf("JOIN EXIT\n");
-        else
-            printf("JOIN WAIT\n");
+        // if (exit == true)
+        //     printf("JOIN EXIT\n");
+        // else
+        //     printf("JOIN WAIT\n");
     }
     fprintf(stderr, "JOIN %d\n", tid);
 }

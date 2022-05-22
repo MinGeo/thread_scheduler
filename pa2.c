@@ -65,8 +65,12 @@ int main(int argc, char* argv[]) {
 
     /* Init user level thread library. */
     uthread_init(policy);
+    sigprocmask(SIG_UNBLOCK, &mask, NULL);
+
+    // uthread_create((void *)__non_preemptive_worker, (void *)params);
 
     /* Read input file and run the correct function. */
+    /*
     while (fgets(buf, sizeof(buf), stdin)) {
         ptr = strtok(buf, " ");
         PARSE_FN(ptr, res);
@@ -91,6 +95,7 @@ int main(int argc, char* argv[]) {
     }
 
     __free_all_tcbs();
+*/
 
     return EXIT_SUCCESS;
 }

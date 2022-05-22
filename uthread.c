@@ -91,7 +91,7 @@ void next_tcb() {
                         current_tid = n_tcb->tid;
                         n_tcb->state = RUNNING;
                         if (p_tcb->tid != n_tcb->tid) {
-                            n_tcb->lifetime--;
+                            n_tcb->lifetime = 0;
                             fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
                             swapcontext(p_tcb->context, n_tcb->context);
                         }
@@ -100,26 +100,36 @@ void next_tcb() {
             }
             break;
         case RR:
+            printf("CHK next_tcb : RR\n");
             list_for_each_entry(n_tcb, &tcbs, list) {
-                // fprintf(stderr, "LOOP : CURRENT %d TCDID %d P %d N %d\n", current_tid, n_tcb->tid, ((struct tcb *)n_tcb->list.prev)->tid, ((struct tcb *)n_tcb->list.next)->tid);
-                if (n_tcb != NULL && current_tid == n_tcb->tid) {
+                if (bExit == false && n_tcb != NULL && current_tid == n_tcb->tid) {
+                    bExit == true;
+                    // fprintf(stderr, "LOOP : CURRENT %d TCDID %d P %d N %d\n", current_tid, n_tcb->tid, ((struct tcb *)n_tcb->list.prev)->tid, ((struct tcb *)n_tcb->list.next)->tid);
                     p_tcb = n_tcb;
-
-                    if (list_is_last(&n_tcb->list, &tcbs) == 1) {
-                    //    printf("LAST : list_first_entry\n");
-                        n_tcb = list_first_entry(&tcbs, struct tcb, list);
+                    while (true) {
+                        if (list_is_last(&n_tcb->list, &tcbs) == 1) {
+                        //    printf("LAST : list_first_entry\n");
+                            n_tcb = list_first_entry(&tcbs, struct tcb, list);
+                            break;
+                        }
+                        else
+                        {
+                            n_tcb = ((struct tcb *)n_tcb->list.next);
+                            if (n_tcb->lifetime > 0 && n_tcb->state != TERMINATED) break;
+                        }
                     }
-                    else
-                    {
-                    //    printf("NEXT : n_tcb->list.next\n");
-                        n_tcb = ((struct tcb *)n_tcb->list.next);
+                    if (n_tcb->lifetime > 0 && n_tcb->state != TERMINATED) {
+                        current_tid = n_tcb->tid;
+                        n_tcb->state = RUNNING;
+                        if (p_tcb->tid != n_tcb->tid) {
+                            if (n_tcb->lifetime > 1)
+                                n_tcb->lifetime--;
+                            else
+                                n_tcb->lifetime = 0;
+                            fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
+                            swapcontext(p_tcb->context, n_tcb->context);
+                        }
                     }
-                    current_tid = n_tcb->tid;
-                    p_tcb->state = READY;
-                    n_tcb->state = RUNNING;
-                    n_tcb->lifetime--;
-                    fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
-                    swapcontext(p_tcb->context, n_tcb->context);
                 }
             }
             break;
@@ -276,6 +286,21 @@ int uthread_create(void* stub(void *), void* args) {
 void uthread_join(int tid) {
     /* TODO: You have to implement this function. */
     for (int i = 0; i < 10000000; i++);
+    for (int i = 0; i < 10000000; i++);
+    for (int i = 0; i < 10000000; i++);
+    for (int i = 0; i < 10000000; i++);
+    for (int i = 0; i < 10000000; i++);
+    for (int i = 0; i < 10000000; i++);
+    for (int i = 0; i < 10000000; i++);
+    for (int i = 0; i < 10000000; i++);
+    for (int i = 0; i < 10000000; i++);
+    for (int i = 0; i < 10000000; i++);
+    for (int i = 0; i < 10000000; i++);
+    for (int i = 0; i < 10000000; i++);
+    for (int i = 0; i < 10000000; i++);
+    for (int i = 0; i < 10000000; i++);
+    for (int i = 0; i < 10000000; i++);
+    for (int i = 0; i < 10000000; i++);
     fprintf(stderr, "JOIN %d\n", tid);
     struct tcb *temp;
     list_for_each_entry(temp, &tcbs, list) {
@@ -306,11 +331,8 @@ void __exit() {
     struct tcb *temp;
     list_for_each_entry(temp, &tcbs, list) {
         if (temp->tid == current_tid) {
-            fprintf(stderr, "CHK exit : %d, lifetime %d\n", temp->tid, temp->lifetime);
-            if (temp->lifetime <= 0) {
-                fprintf(stderr, "CHK TERMINATED : %d\n", temp->tid);
-                temp->state = TERMINATED;
-            }
+            fprintf(stderr, "CHK TERMINATED : %d\n", temp->tid);
+            temp->state = TERMINATED;
         }
     }
 }

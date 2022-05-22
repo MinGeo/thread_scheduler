@@ -45,6 +45,7 @@ struct tcb {
  **************************************************************************************/
 
 ucontext_t mainContext;
+ucontext_t exitContext;
 
 LIST_HEAD(tcbs);
 int n_tcbs = 0;
@@ -245,7 +246,7 @@ int uthread_create(void* stub(void *), void* args) {
     n_tcbs++;
     
     getcontext(thread->context);
-    thread->context->uc_link = 0;   
+    thread->context->uc_link = &exitContext;   
     thread->context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
     thread->context->uc_stack.ss_size = MAX_STACK_SIZE;
     thread->context->uc_stack.ss_flags = 0;
@@ -319,17 +320,17 @@ void __exit() {
     /* TODO: You have to implement this function. */
     printf("This is exit");
     // 스레드가 종료되었을때 실행되는 스레드
-    struct tcb *temp;
-    list_for_each_entry(temp, &tcbs, list) {
-        if (temp != NULL && temp->tid != -1) {
-            // ss_flags
-            // 
-            if (temp->lifetime == 0) {
-                temp->state = TERMINATED;
-            }
+    // struct tcb *temp;
+    // list_for_each_entry(temp, &tcbs, list) {
+    //     if (temp != NULL && temp->tid != -1) {
+    //         // ss_flags
+    //         // 
+    //         if (temp->lifetime == 0) {
+    //             temp->state = TERMINATED;
+    //         }
             
-        }
-    }
+    //     }
+    // }
 }
  
 /***************************************************************************************
@@ -345,29 +346,13 @@ void __exit() {
 void __initialize_exit_context() {
     /* TODO: You have to implement this function. */
     printf("This is initialize exit context");
-    struct tcb *thread;
-    thread = malloc(sizeof(struct tcb));
-    thread->context = malloc(20000);
-    setcontext(thread->context);
-    /*
-    thread->tid = MAIN_THREAD_TID;
-    thread->lifetime = MAIN_THREAD_LIFETIME;
-    thread->priority = MAIN_THREAD_PRIORITY;
-    */
-    // 리스트에 추가하는 방법 맞는지 모름, 확인 필요함
-    // 스레드 갯수 카운트 추가
-    // ???????? 아닌것 같음
-    thread->context->uc_link = 0;   
-    thread->context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
-    thread->context->uc_stack.ss_size = MAX_STACK_SIZE;
-    thread->context->uc_stack.ss_flags = 0;
-    
-    makecontext(thread->context, (void*)&exit, 0);
-    
-
-
-
-    
+    getcontext(&exitContext);
+    exitContext.uc_link = 0;   
+    exitContext.uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
+    exitContext.uc_stack.ss_size = MAX_STACK_SIZE;
+    exitContext.uc_stack.ss_flags = 0;
+    makecontext(&exitContext, (void *)__exit, 0);
+    printf("exit context makecontext");
 }
  
 /***************************************************************************************

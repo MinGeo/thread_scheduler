@@ -86,7 +86,6 @@ void next_tcb() {
                         }
                     }
                     current_tid = n_tcb->tid;
-                    fprintf(stderr, "lifetime %d\n", n_tcb->lifetime);
                     if (n_tcb->lifetime > 0 && n_tcb->state != TERMINATED) {
                         n_tcb->state = RUNNING;
                         if (p_tcb->tid != n_tcb->tid) {
@@ -301,13 +300,14 @@ void uthread_join(int tid) {
 void __exit() {
     /* TODO: You have to implement this function. */
     // printf("__exit\n");
-    struct tcb *temp;
+/*    struct tcb *temp;
     list_for_each_entry(temp, &tcbs, list) {
         if (temp->lifetime <= 0) {
             temp->state = TERMINATED;
             // fprintf(stderr, "TERMINATED : %d\n", temp->tid);
         }
     }
+*/
 }
  
 /***************************************************************************************

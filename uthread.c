@@ -3,7 +3,6 @@
 #include <signal.h>
 #include <sys/time.h>
 #include <ucontext.h>
-#include <unistd.h>
 #include "uthread.h"
 #include "list_head.h"
 #include "types.h"
@@ -104,6 +103,7 @@ void next_tcb() {
                         } else {
                             if (p_tcb->tid != n_tcb->tid) {
                                 fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
+                                swapcontext(p_tcb->context, n_tcb->context);
                             }
                         }
                     }
@@ -308,7 +308,6 @@ void uthread_join(int tid) {
             }
         }
         fprintf(stderr, "uthread_join do %d\n", tid);
-        sleep(1);
     }
     fprintf(stderr, "JOIN %d\n", tid);
 }

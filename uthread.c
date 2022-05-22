@@ -153,21 +153,23 @@ struct tcb *sjf_scheduling(struct tcb *next) {
 void uthread_init(enum uthread_sched_policy policy) {
     /* TODO: You have to implement this function. */
     sched_policy = policy;
+    ucontext_t *context;
+    context = malloc(sizeof(ucontext_t));
     struct tcb *thread;
     thread = malloc(sizeof(struct tcb));
     thread->tid = MAIN_THREAD_TID;
     thread->lifetime = MAIN_THREAD_LIFETIME;
     thread->priority = MAIN_THREAD_PRIORITY;
     thread->state = RUNNING;
-    thread->context = malloc(sizeof(ucontext_t));
+    thread->context = context;
     list_add_tail(&thread->list, &tcbs);
     n_tcbs++;
     current_tid = MAIN_THREAD_TID;
-    if (getcontext(thread->context)) {
+    if (getcontext(context)) {
         printf("CHK : main getcontext error\n");
         return;
     }
-    t_context = thread->context;
+    t_context = context;
 
     /* DO NOT MODIFY THESE TWO LINES */
     __create_run_timer();

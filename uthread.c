@@ -273,7 +273,13 @@ int uthread_create(void* stub(void *), void* args) {
 
 void uthread_join(int tid) {
     /* TODO: You have to implement this function. */
-    fprintf(stderr, "JOIN %d\n", tid);
+    struct tcb *temp;
+    list_for_each_entry(temp, &tcbs, list) {
+        if (temp->tid == tid) {
+            fprintf(stderr, "JOIN %d\n", tid);
+            setcontext(temp);
+        }
+    }
 }
 
 /***************************************************************************************

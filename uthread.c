@@ -96,7 +96,7 @@ void next_tcb() {
                         if (p_tcb->tid != n_tcb->tid) {
                             fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
                             swapcontext(p_tcb->context, n_tcb->context);
-                            fprintf(stderr, "SWAP %d -> %d\n", n_tcb->tid);
+                            fprintf(stderr, "AFTERSWAP %d\n", n_tcb->tid);
                         }
                         n_tcb->lifetime--;
                         break;

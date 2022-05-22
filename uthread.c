@@ -363,7 +363,7 @@ void __initialize_exit_context() {
     struct tcb *thread;
     thread = malloc(sizeof(struct tcb));
     thread->context = malloc(20000);
-    getcontext(thread->context);
+    setcontext(thread->context);
     /*
     thread->tid = MAIN_THREAD_TID;
     thread->lifetime = MAIN_THREAD_LIFETIME;

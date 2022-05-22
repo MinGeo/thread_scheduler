@@ -94,7 +94,7 @@ void next_tcb() {
                 // fprintf(stderr, "LOOP : CURRENT %d TCDID %d P %d N %d\n", current_tid, n_tcb->tid, ((struct tcb *)n_tcb->list.prev)->tid, ((struct tcb *)n_tcb->list.next)->tid);
                 if (n_tcb != NULL && current_tid == n_tcb->tid) {
                     p_tcb = n_tcb;
-                    
+
                     if (list_is_last(&n_tcb->list, &tcbs) == 1) {
                     //    printf("LAST : list_first_entry\n");
                         n_tcb = list_first_entry(&tcbs, struct tcb, list);
@@ -265,6 +265,13 @@ int uthread_create(void* stub(void *), void* args) {
 void uthread_join(int tid) {
     /* TODO: You have to implement this function. */
     fprintf(stderr, "JOIN %d\n", tid);
+
+    struct tcb *temp;
+    list_for_each_entry(temp, &tcbs, list) {
+        fprintf(stderr, "EXIT : %d\n", temp->context->uc_sigmask);
+    }
+    printf("This is exit\n");
+
 }
 
 /***************************************************************************************
@@ -283,6 +290,10 @@ void uthread_join(int tid) {
 
 void __exit() {
     /* TODO: You have to implement this function. */
+    struct tcb *temp;
+    list_for_each_entry(temp, &tcbs, list) {
+        fprintf(stderr, "EXIT : %d\n", temp->context->uc_sigmask);
+    }
     printf("This is exit\n");
 }
  
@@ -316,7 +327,7 @@ static struct itimerval time_quantum;
 static struct sigaction ticker;
 
 void __scheduler() {
-    printf("CHK : __scheduler\n");
+   // printf("CHK : __scheduler\n");
    if (n_tcbs > 1)
        next_tcb();
 }

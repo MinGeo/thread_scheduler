@@ -93,7 +93,7 @@ void next_tcb() {
                             if (n_tcb->state == READY) {
                                 n_tcb->state = RUNNING;
                                 n_tcb->lifetime = 0;
-                                fprintf(stderr, "SET %d -> %d\n", p_tcb->tid, n_tcb->tid);
+                                fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
                                 setcontext(n_tcb->context);
                             } else {
                                 n_tcb->lifetime = 0;
@@ -330,13 +330,13 @@ void uthread_join(int tid) {
 
 void __exit() {
     /* TODO: You have to implement this function. */
-    printf("__exit\n");
+    // printf("__exit\n");
     while (true) {
         struct tcb *temp;
         list_for_each_entry(temp, &tcbs, list) {
             // if (temp->tid != MAIN_THREAD_TID && temp->tid == current_tid) {
             if (temp->tid != MAIN_THREAD_TID && temp->state != TERMINATED && temp->lifetime <= 0) {
-                fprintf(stderr, "CHK TERMINATED : %d\n", temp->tid);
+                // fprintf(stderr, "CHK TERMINATED : %d\n", temp->tid);
                 temp->state = TERMINATED;
             }
         }

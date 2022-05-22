@@ -86,7 +86,7 @@ void next_tcb() {
                         }
                     }
                     current_tid = n_tcb->tid;
-                    if (n_tcb->state != TERMINATED) {
+                    if (n_tcb->lifetime > 0 && n_tcb->state != TERMINATED) {
                         n_tcb->state = RUNNING;
                         if (p_tcb->tid != n_tcb->tid) {
                             fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);

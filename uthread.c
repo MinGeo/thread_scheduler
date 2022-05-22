@@ -68,15 +68,20 @@ void next_tcb() {
     {
         case FIFO:
             list_for_each_entry(n_tcb, &tcbs, list) {
-                fprintf(stderr, "LOOP : %d P %d N %d\n", n_tcb->tid, ((struct tcb *)tcbs.prev)->tid, ((struct tcb *)tcbs.next)->tid);
+                fprintf(stderr, "LOOP : CURRENT %d TCDID %d P %d N %d\n", current_tid, n_tcb->tid, ((struct tcb *)n_tcb->list.prev)->tid, ((struct tcb *)n_tcb->list.next)->tid);
                 if (n_tcb != NULL && current_tid == n_tcb->tid) {
-                    n_tcb = ((struct tcb *)tcbs.next);
-                    if ((n_tcb == NULL) || (n_tcb->tid == -1)) {
+                    if (list_is_last(&n_tcb->list, &tcbs) == 1) {
+                        printf("LAST : list_first_entry\n");
                         n_tcb = list_first_entry(&tcbs, struct tcb, list);
                     }
+                    else
+                    {
+                        printf("NEXT : n_tcb->list.next\n");
+                        n_tcb = ((struct tcb *)n_tcb->list.next);
+                    }
                     current_tid = n_tcb->tid;
-                    fprintf(stderr, "SWAP %d -> %d\n", ((struct tcb *)tcbs.prev)->tid, n_tcb->tid);
-                    swapcontext(((struct tcb *)tcbs.prev)->context, n_tcb->context);
+                    fprintf(stderr, "SWAP %d -> %d\n", ((struct tcb *)n_tcb->list.prev)->tid, n_tcb->tid);
+                    swapcontext(((struct tcb *)n_tcb->list.prev)->context, n_tcb->context);
                 }
             }
             break;

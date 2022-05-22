@@ -269,7 +269,7 @@ int uthread_create(void* stub(void *), void* args) {
     ucontext_t context; 
     if (getcontext(&context)) {
         printf("CHK : context 222 error\n");
-        return;
+        return -1;
     }
     makecontext(&context, (void *)stub, 0);
     printf("CHK : makecontext(&context, (void *)stub, 0)\n");
@@ -279,7 +279,7 @@ int uthread_create(void* stub(void *), void* args) {
     // printf("CHK : swapcontext\n");
     if (setcontext(&context)) {
         printf("CHK : setcontext error\n");
-        return;
+        return -1;
     }
     printf("CHK : setcontext\n");
 

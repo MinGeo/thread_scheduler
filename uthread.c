@@ -66,7 +66,7 @@ void next_tcb() {
     struct tcb *p_tcb;
     struct tcb *n_tcb;
     bool bExit = false; 
-    fprintf(stderr, "hello %d", 1);
+    fprintf(stderr, "TEST NEXT_TCB");
     switch (sched_policy)
     {
         case FIFO:

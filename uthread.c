@@ -332,6 +332,7 @@ void uthread_join(int tid) {
 void __exit() {
     /* TODO: You have to implement this function. */
     // printf("__exit\n");
+    /*
     while (true) {
         struct tcb *temp;
         list_for_each_entry(temp, &tcbs, list) {
@@ -342,6 +343,7 @@ void __exit() {
             }
         }
     }
+    */
 }
  
 /***************************************************************************************

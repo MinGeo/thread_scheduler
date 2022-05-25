@@ -65,7 +65,8 @@ void next_tcb() {
     /* TODO: You have to implement this function. */
     struct tcb *p_tcb;
     struct tcb *n_tcb;
-    bool bExit = false;
+    bool bExit = false; 
+    fprintf(stderr, "hello %d", p_tcb->tid);
     switch (sched_policy)
     {
         case FIFO:
@@ -273,13 +274,12 @@ int uthread_create(void* stub(void *), void* args) {
     INIT_LIST_HEAD(&temp->list);
     list_add_tail(&temp->list, &tcbs);
     n_tcbs++;
-
     getcontext(temp->context);
-//    temp->context->uc_link = &exitContext;   
-    temp->context->uc_link = t_context;
-    if ((temp->list.prev != NULL) && (((struct tcb *)temp->list.prev)->tid != MAIN_THREAD_TID)) {
-        temp->context->uc_link = &exitContext;   
-    }   
+    temp->context->uc_link = &exitContext;   
+    // temp->context->uc_link = t_context;
+    // if ((temp->list.prev != NULL) && (((struct tcb *)temp->list.prev)->tid != MAIN_THREAD_TID)) {
+    //     temp->context->uc_link = &exitContext;   
+    // }   
     temp->context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
     temp->context->uc_stack.ss_size = MAX_STACK_SIZE;
     temp->context->uc_stack.ss_flags = 0;

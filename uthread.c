@@ -7,15 +7,9 @@
 #include "list_head.h"
 #include "types.h"
 
-// 참고해야할 사이트 주소 -------------------------------
-// coroutine 설명
-// https://wooooooak.github.io/kotlin/2019/08/25/%EC%BD%94%ED%8B%80%EB%A6%B0-%EC%BD%94%EB%A3%A8%ED%8B%B4-%EA%B0%9C%EB%85%90-%EC%9D%B5%ED%9E%88%EA%B8%B0/
-
-// signal.h 설명
-// https://12bme.tistory.com/224
+#include <sys/wait.h>
 
 /* You can include other header file, if you want. */
-// 스케줄 관리 방식을 uthread_init 함수에서만 전달 받음으로 전역 변수로 가지고 있어야 함수
 enum uthread_sched_policy sched_policy;
  
 /*******************************************************************
@@ -44,9 +38,10 @@ struct tcb {
  *
  **************************************************************************************/
 
-ucontext_t exitContext;
 int current_tid;
-
+struct tcb *current_tcb;
+int shortcheck = 10;
+int priocheck = -1;
 LIST_HEAD(tcbs);
 int n_tcbs = 0;
 struct ucontext_t *t_context;
@@ -57,100 +52,164 @@ struct ucontext_t *t_context;
  * DESCRIPTION
  *
  *    Select a tcb with current scheduling policy]'
- *    현재 일정 정책이 있는 tcb를 선택하세요.
  *
  **************************************************************************************/
 
 void next_tcb() {
     /* TODO: You have to implement this function. */
+    int test = 0;
+    struct tcb *temp;
     struct tcb *p_tcb;
     struct tcb *n_tcb;
-    bool bExit = false; 
-    fprintf(stderr, "TEST NEXT_TCB");
     switch (sched_policy)
     {
         case FIFO:
-            // printf("CHK next_tcb : FIFO\n");
-            list_for_each_entry(n_tcb, &tcbs, list) {
-                if (bExit == false && n_tcb != NULL && current_tid == n_tcb->tid) {
-                    bExit == true;
-                    // fprintf(stderr, "LOOP : CURRENT %d TCDID %d P %d N %d\n", current_tid, n_tcb->tid, ((struct tcb *)n_tcb->list.prev)->tid, ((struct tcb *)n_tcb->list.next)->tid);
-                    p_tcb = n_tcb;
-                    while (true) {
-                        if (list_is_last(&n_tcb->list, &tcbs) == 1) {
-                        //    printf("LAST : list_first_entry\n");
-                            n_tcb = list_first_entry(&tcbs, struct tcb, list);
-                            break;
-                        }
-                        else
-                        {
-                            n_tcb = ((struct tcb *)n_tcb->list.next);
-                            if (n_tcb->lifetime > 0 && n_tcb->state != TERMINATED) break;
-                        }
-                    }
-                    if (n_tcb->lifetime > 0 && n_tcb->state != TERMINATED) {
-                        current_tid = n_tcb->tid;
-                        if (MAIN_THREAD_TID != n_tcb->tid) {
-                            if (n_tcb->state == READY) {
-                                n_tcb->state = RUNNING;
-                                n_tcb->lifetime = 0;
-                                fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
-                                setcontext(n_tcb->context);
-                            } else {
-                                n_tcb->lifetime = 0;
-                                fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
-                                swapcontext(p_tcb->context, n_tcb->context);
-                            }
-                        } else {
-                            if (p_tcb->tid != n_tcb->tid) {
-                                fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
-                                //  swapcontext(p_tcb->context, n_tcb->context);
-                            }
-                        }
-                    }
-                }
+            if (current_tcb->tid != MAIN_THREAD_TID) {
+                current_tcb->lifetime = 0;
+                current_tcb->state = TERMINATED;
             }
+            p_tcb = current_tcb;    
+            while (true) {
+                if (list_is_last(&p_tcb->list, &tcbs) == 1) { 
+                    if (p_tcb->tid == MAIN_THREAD_TID)
+                        return;     
+                    else
+                        n_tcb = list_first_entry(&tcbs, struct tcb, list);  
+                } else {
+                    n_tcb = ((struct tcb *)p_tcb->list.next);   
+                }
+                if (n_tcb->lifetime > 0)    
+                    break;
+                else
+                    p_tcb = n_tcb;     
+            }
+            p_tcb = current_tcb;    
+            current_tcb = n_tcb;    
+            n_tcb->state = RUNNING; 
+            fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
+            swapcontext(p_tcb->context, n_tcb->context);    
             break;
         case RR:
-            printf("CHK next_tcb : RR\n");
-            list_for_each_entry(n_tcb, &tcbs, list) {
-                if (bExit == false && n_tcb != NULL && current_tid == n_tcb->tid) {
-                    bExit == true;
-                    // fprintf(stderr, "LOOP : CURRENT %d TCDID %d P %d N %d\n", current_tid, n_tcb->tid, ((struct tcb *)n_tcb->list.prev)->tid, ((struct tcb *)n_tcb->list.next)->tid);
-                    p_tcb = n_tcb;
-                    while (true) {
-                        if (list_is_last(&n_tcb->list, &tcbs) == 1) {
-                        //    printf("LAST : list_first_entry\n");
-                            n_tcb = list_first_entry(&tcbs, struct tcb, list);
-                            break;
-                        }
-                        else
-                        {
-                            n_tcb = ((struct tcb *)n_tcb->list.next);
-                            if (n_tcb->lifetime > 0 && n_tcb->state != TERMINATED) break;
-                        }
+            p_tcb = current_tcb;    
+            while (true) {
+                if (list_is_last(&p_tcb->list, &tcbs) == 1) {   
+                    if (current_tcb->tid == MAIN_THREAD_TID)
+                    {
+                        return;     
                     }
-                    if (n_tcb->lifetime > 0 && n_tcb->state != TERMINATED) {
-                        current_tid = n_tcb->tid;
-                        n_tcb->state = RUNNING;
-                        if (p_tcb->tid != n_tcb->tid) {
-                            if (n_tcb->lifetime > 1)
-                                n_tcb->lifetime--;
-                            else
-                                n_tcb->lifetime = 0;
-                            fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
-                            swapcontext(p_tcb->context, n_tcb->context);
-                        }
+                    else
+                        n_tcb = list_first_entry(&tcbs, struct tcb, list);  
+                } else {
+                    n_tcb = ((struct tcb *)p_tcb->list.next);   
+                }
+                if (n_tcb->lifetime > 0)     
+                    break;
+                else
+                    p_tcb = n_tcb;     
+            }
+            p_tcb = current_tcb;    
+            p_tcb->lifetime--;
+            if (current_tcb->tid != MAIN_THREAD_TID) {
+                if(current_tcb->lifetime == 0)
+                {
+                    current_tcb->state = TERMINATED;
+                }
+            }
+            current_tcb = n_tcb;    
+            n_tcb->state = RUNNING; 
+            fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
+            swapcontext(p_tcb->context, n_tcb->context); 
+            break;
+        case PRIO:
+            priocheck = -1;
+            current_tcb->lifetime--;
+            if (current_tcb->tid != MAIN_THREAD_TID) {
+                if(current_tcb->lifetime == 0)
+                {
+                    current_tcb->state = TERMINATED;
+                }
+            }
+            list_for_each_entry(temp, &tcbs, list)
+            {
+                if(temp->priority > priocheck && temp->state != TERMINATED)
+                {
+                    priocheck = temp->priority;
+                }
+            }
+            p_tcb = current_tcb;   
+            list_for_each_entry(temp, &tcbs, list)
+            {
+                if(temp->state != TERMINATED)
+                {
+                    test++;
+                }
+            }
+            if (test == 1) {   
+                if (p_tcb->tid == MAIN_THREAD_TID)
+                {
+                    return;    
+                }
+            }     
+            list_for_each_entry(n_tcb, &tcbs, list)
+            {
+                if(n_tcb->priority == priocheck && n_tcb->state != TERMINATED)
+                {
+                    break;
+                }
+            }
+            p_tcb = current_tcb;    
+            current_tcb = n_tcb;
+            n_tcb->state = RUNNING;
+            fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
+            swapcontext(p_tcb->context, n_tcb->context);
+            break;
+        case SJF:
+            if (current_tcb->tid != MAIN_THREAD_TID) {
+                current_tcb->lifetime = 0;
+                current_tcb->state = TERMINATED;
+            }
+            shortcheck = 100;
+            list_for_each_entry(temp, &tcbs, list)
+            {
+                if(temp->lifetime < shortcheck && temp->state != TERMINATED)
+                {
+                    shortcheck = temp->lifetime;
+                }
+            }
+            p_tcb = current_tcb;
+            list_for_each_entry(temp, &tcbs, list)
+            {
+                if(temp->state != TERMINATED)
+                {
+                    test++;
+                }
+            }
+            if (test == 1) {
+                if (p_tcb->tid == MAIN_THREAD_TID)
+                {
+                    return;
+                }
+            }
+            if(shortcheck == 100)
+            {
+                n_tcb = list_first_entry(&tcbs, struct tcb, list);
+            }
+            else{
+                list_for_each_entry(n_tcb, &tcbs, list)
+                {
+                    if(n_tcb->lifetime == shortcheck && n_tcb->state != TERMINATED)
+                    {
+                        break;
                     }
                 }
             }
-            break;
-        case PRIO:
-            break;
-        case SJF:
+            p_tcb = current_tcb;    
+            current_tcb = n_tcb;    
+            n_tcb->state = RUNNING; 
+            fprintf(stderr, "SWAP %d -> %d\n", p_tcb->tid, n_tcb->tid);
+            swapcontext(p_tcb->context, n_tcb->context); 
             break;
         default:
-            // error
             break;
     }
 }
@@ -222,26 +281,20 @@ void uthread_init(enum uthread_sched_policy policy) {
     sched_policy = policy;
     ucontext_t *context;
     context = malloc(sizeof(ucontext_t));
-    struct tcb *thread;
-    thread = malloc(sizeof(struct tcb));
-    thread->tid = MAIN_THREAD_TID;
-    thread->lifetime = MAIN_THREAD_LIFETIME;
-    thread->priority = MAIN_THREAD_PRIORITY;
-    thread->state = RUNNING;
-    thread->context = context;
-    INIT_LIST_HEAD(&thread->list);
-    list_add_tail(&thread->list, &tcbs);
+    struct tcb *temp;
+    temp = malloc(sizeof(struct tcb));
+    temp->tid = MAIN_THREAD_TID;
+    temp->lifetime = MAIN_THREAD_LIFETIME;
+    temp->priority = MAIN_THREAD_PRIORITY;
+    temp->state = RUNNING;
+    temp->context = context;
+    INIT_LIST_HEAD(&temp->list);
+    list_add_tail(&temp->list, &tcbs);
     n_tcbs++;
+
     current_tid = MAIN_THREAD_TID;
-    if (getcontext(context)) {
-        printf("CHK : main getcontext error\n");
-        return;
-    }
-    context->uc_link = NULL;   
-    context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
-    context->uc_stack.ss_size = MAX_STACK_SIZE;
-    context->uc_stack.ss_flags = 0;
-    t_context = context;
+    current_tcb = temp;
+    getcontext(context);
 
     /* DO NOT MODIFY THESE TWO LINES */
     __create_run_timer();
@@ -255,10 +308,6 @@ void uthread_init(enum uthread_sched_policy policy) {
  * DESCRIPTION
  *
  *    Create user level thread. This function returns a tid.
- *
- * stub : 전달 받지만 함수 내에서 사용하지 않음
- * pa2.c소스에서 (void *)__non_preemptive_worker, (void *)__preemptive_worker 두가지가 옴
- * 전달받은 값을 tcb 구조에 넣기만 하고 실제 스레드 실행을 안함??
  *
  **************************************************************************************/
 
@@ -274,16 +323,14 @@ int uthread_create(void* stub(void *), void* args) {
     INIT_LIST_HEAD(&temp->list);
     list_add_tail(&temp->list, &tcbs);
     n_tcbs++;
+
     getcontext(temp->context);
-    temp->context->uc_link = &exitContext;   
-    // temp->context->uc_link = t_context;
-    // if ((temp->list.prev != NULL) && (((struct tcb *)temp->list.prev)->tid != MAIN_THREAD_TID)) {
-    //     temp->context->uc_link = &exitContext;   
-    // }   
+    temp->context->uc_link = t_context;   
     temp->context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
     temp->context->uc_stack.ss_size = MAX_STACK_SIZE;
     temp->context->uc_stack.ss_flags = 0;
     makecontext(temp->context, (void *)stub, 0);
+    sigemptyset(&temp->context->uc_sigmask);
 
     return temp->tid;
 }
@@ -294,22 +341,21 @@ int uthread_create(void* stub(void *), void* args) {
  * DESCRIPTION
  *
  *    Wait until thread context block is terminated.
- *    스레드 컨텍스트 블록이 종료될 때까지 기다립니다.
- *
- * tid : 조인할 스레드
- * pa2.c에서 사용자가 JOIN요구시 호출됨
  *
  **************************************************************************************/
 
 void uthread_join(int tid) {
     /* TODO: You have to implement this function. */
-    fprintf(stderr, "uthread_join %d\n", tid);
-    struct tcb *temp;
     while (true) {
+        struct tcb *temp;
         list_for_each_entry(temp, &tcbs, list) {
-            if ((temp->tid == tid) && (temp->state == TERMINATED)) {
-                fprintf(stderr, "JOIN %d\n", tid);
-                return;
+            if (temp->tid == tid) {
+                if (temp->state == TERMINATED) {
+                    list_del(&temp->list);
+                    n_tcbs--;
+                    fprintf(stderr, "JOIN %d\n", tid);
+                    return;
+                }
             }
         }
     }
@@ -322,28 +368,10 @@ void uthread_join(int tid) {
  *
  *    When your thread is terminated, the thread have to modify its state in tcb block.
  *
- *    스레드가 종료되면 스레드는 tcb 블록에서 상태를 수정해야 합니다.
- *    스레드 종료될때 exit함수를 통해서 종료 상태 갱신해야 하는 듯
- *    README.md 참고
- *    When each thread is terminated, they must inform their state to the main thread. So, you have to create the context that will be resumed after the terminated thread.
- *
  **************************************************************************************/
 
 void __exit() {
     /* TODO: You have to implement this function. */
-    // printf("__exit\n");
-    /*
-    while (true) {
-        struct tcb *temp;
-        list_for_each_entry(temp, &tcbs, list) {
-            // if (temp->tid != MAIN_THREAD_TID && temp->tid == current_tid) {
-            if (temp->tid != MAIN_THREAD_TID && temp->state != TERMINATED && temp->lifetime <= 0) {
-                fprintf(stderr, "CHK TERMINATED : %d\n", temp->tid);
-                temp->state = TERMINATED;
-            }
-        }
-    }
-    */
 }
  
 /***************************************************************************************
@@ -352,18 +380,18 @@ void __exit() {
  * DESCRIPTION
  *
  *    This function initializes exit context that your thread context will be linked.
- *    이 함수는 스레드 컨텍스트가 연결될 종료 컨텍스트를 초기화합니다.
  *
  **************************************************************************************/
 
 void __initialize_exit_context() {
     /* TODO: You have to implement this function. */
-    getcontext(&exitContext);
-    exitContext.uc_link = 0;   
-    exitContext.uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
-    exitContext.uc_stack.ss_size = MAX_STACK_SIZE;
-    exitContext.uc_stack.ss_flags = 0;
-    makecontext(&exitContext, (void *)__exit, 0);
+    t_context = malloc(sizeof(ucontext_t));
+    getcontext(t_context);
+    t_context->uc_link = 0;   
+    t_context->uc_stack.ss_sp = malloc(MAX_STACK_SIZE);
+    t_context->uc_stack.ss_size = MAX_STACK_SIZE;
+    t_context->uc_stack.ss_flags = 0;
+    makecontext(t_context, (void *)__exit, 0);
 }
  
 /***************************************************************************************
@@ -376,20 +404,18 @@ static struct itimerval time_quantum;
 static struct sigaction ticker;
 
 void __scheduler() {
-   // printf("CHK : __scheduler\n");
    if (n_tcbs > 1)
        next_tcb();
 }
 
 void __create_run_timer() {
-    // 타이머 설정값
     time_quantum.it_interval.tv_sec = 0;
-    time_quantum.it_interval.tv_usec = SCHEDULER_FREQ;  // 1초 
+    time_quantum.it_interval.tv_usec = SCHEDULER_FREQ; 
     time_quantum.it_value = time_quantum.it_interval;
 
-    ticker.sa_handler = __scheduler;                    // 핸들러 설정
-    sigemptyset(&ticker.sa_mask);                       // 빈시그널
-    sigaction(SIGALRM, &ticker, NULL);                  // SIGALRM 시그널 실행
+    ticker.sa_handler = __scheduler;                  
+    sigemptyset(&ticker.sa_mask);                      
+    sigaction(SIGALRM, &ticker, NULL);                  
     ticker.sa_flags = 0;
 
     setitimer(ITIMER_REAL, &time_quantum, (struct itimerval*) NULL);
